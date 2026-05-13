@@ -227,10 +227,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             <textarea
               placeholder="Description (optional)"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+              maxLength={2000}
               rows={3}
               className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
             />
+            <div className="text-right text-xs text-slate-500 -mt-3">{description.length}/2000</div>
             <ListPicker lists={lists} selected={selectedLists} onToggle={toggleList} />
             <button
               type="submit"

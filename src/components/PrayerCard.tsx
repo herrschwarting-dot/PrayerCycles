@@ -50,7 +50,7 @@ export function PrayerCard({ surfaced, onComplete }: PrayerCardProps) {
           </div>
           <h3 className="text-lg font-semibold text-slate-100">{prayer.title}</h3>
           {prayer.description && (
-            <p className="mt-1 text-sm text-slate-300">{prayer.description}</p>
+            <p className="mt-1 text-sm text-slate-300 whitespace-pre-wrap">{prayer.description}</p>
           )}
           {tallyLabel && (
             <div className="mt-3 text-xs text-sky-300">{tallyLabel}</div>

@@ -62,10 +62,12 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
           <textarea
             placeholder="Add a description..."
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+            maxLength={2000}
             rows={4}
             className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
           />
+          <div className="text-right text-xs text-slate-500 -mt-3">{description.length}/2000</div>
 
           {tallyLabel && (
             <div className="text-xs text-slate-500">{tallyLabel}</div>
