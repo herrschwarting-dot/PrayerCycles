@@ -2,27 +2,50 @@ import { db } from '../../db/db'
 import { generateId } from '../../lib/id'
 import type { Cycle, ListStatus, PrayerList } from '../../db/types'
 
-const LIST_COLORS = [
-  '#fef3c7', '#fce7f3', '#dbeafe', '#d1fae5',
-  '#ede9fe', '#ffedd5', '#e0e7ff', '#fecdd3',
-]
-
 export async function createList(
   name: string,
   cycle: Cycle,
-  color?: string,
+  description = '',
+  initialPrayerTitles: string[] = [],
 ): Promise<string> {
   const id = generateId()
+
+  const queue: string[] = []
+  const now = Date.now()
+  const prayersToAdd = initialPrayerTitles
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .map((title, i) => {
+      const prayerId = generateId()
+      queue.push(prayerId)
+      return {
+        id: prayerId,
+        title,
+        description: '',
+        listIds: [id],
+        createdAt: now + i,
+        lastPrayedAt: null,
+        prayerTally: 0,
+      }
+    })
+
   const list: PrayerList = {
     id,
     name,
-    color: color ?? LIST_COLORS[Math.floor(Math.random() * LIST_COLORS.length)],
+    description,
     cycle,
     status: 'active',
-    rotationState: { queue: [], pointer: 0, lastCadenceBoundary: Date.now() },
+    rotationState: { queue, pointer: 0, lastCadenceBoundary: Date.now() },
     createdAt: Date.now(),
   }
-  await db.prayerLists.add(list)
+
+  await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
+    await db.prayerLists.add(list)
+    if (prayersToAdd.length > 0) {
+      await db.prayers.bulkAdd(prayersToAdd)
+    }
+  })
+
   return id
 }
 

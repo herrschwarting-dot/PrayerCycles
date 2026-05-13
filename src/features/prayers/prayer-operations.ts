@@ -43,8 +43,8 @@ export async function bulkCreatePrayers(
 
     const newQueue = [...list.rotationState.queue]
 
-    for (const title of titles) {
-      const trimmed = title.trim()
+    for (let i = 0; i < titles.length; i++) {
+      const trimmed = titles[i].trim()
       if (!trimmed) continue
       const id = generateId()
       ids.push(id)
@@ -53,7 +53,7 @@ export async function bulkCreatePrayers(
         title: trimmed,
         description: '',
         listIds: [listId],
-        createdAt: Date.now(),
+        createdAt: Date.now() + i,
         lastPrayedAt: null,
         prayerTally: 0,
       })
@@ -72,7 +72,8 @@ export async function getPrayer(id: string): Promise<Prayer | undefined> {
 }
 
 export async function getPrayersByList(listId: string): Promise<Prayer[]> {
-  return db.prayers.where('listIds').equals(listId).toArray()
+  const prayers = await db.prayers.where('listIds').equals(listId).toArray()
+  return prayers.sort((a, b) => a.createdAt - b.createdAt)
 }
 
 export async function getAllPrayers(): Promise<Prayer[]> {

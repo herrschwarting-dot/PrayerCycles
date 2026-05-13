@@ -18,7 +18,7 @@ export type RotationState = {
 export type PrayerList = {
   id: string
   name: string
-  color: string
+  description: string
   cycle: Cycle
   status: ListStatus
   rotationState: RotationState

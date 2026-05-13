@@ -15,7 +15,7 @@ const rotationStateSchema = z.object({
 export const prayerListSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
-  color: z.string(),
+  description: z.string(),
   cycle: cycleSchema,
   status: z.enum(['active', 'archived']),
   rotationState: rotationStateSchema,

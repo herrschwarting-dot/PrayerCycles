@@ -71,6 +71,23 @@ describe('prayer operations', () => {
     expect(logs).toHaveLength(2)
   })
 
+  it('creates a list with description and initial prayers in one step', async () => {
+    const listId = await createList(
+      'Students',
+      { cadence: 'weekly', persistence: 'one-session', lifecycle: 'indefinite' },
+      'Pray for my algebra class',
+      ['Alice', 'Bob', 'Charlie'],
+    )
+
+    const list = await db.prayerLists.get(listId)
+    expect(list!.description).toBe('Pray for my algebra class')
+    expect(list!.rotationState.queue).toHaveLength(3)
+
+    const prayers = await getPrayersByList(listId)
+    expect(prayers).toHaveLength(3)
+    expect(prayers.every((p) => p.description === '')).toBe(true)
+  })
+
   it('deletes a prayer and cleans up rotation queue and logs', async () => {
     const listId = await createList('Missions', {
       cadence: 'monthly',
