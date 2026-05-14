@@ -133,7 +133,7 @@ export function ListDetailPage() {
   const pEvery = list.cycle.persistence.every
   const freqLabel = pEvery === 1 ? `Every ${persistenceLabels[pUnit]}` : `Every ${pEvery} ${persistenceLabelPlural[pUnit]}`
   const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? 'x ∞' : `x ${list.cycle.lifecycle.retireAfter ?? 1}`
-  const cadenceLabel = `${list.cycle.cadence} | ${freqLabel} | ${lifecycleLabel}`
+
 
   const sortedPrayers = [...prayers].sort((a, b) => {
     if (sortMode === 'az') return a.title.localeCompare(b.title) || a.createdAt - b.createdAt

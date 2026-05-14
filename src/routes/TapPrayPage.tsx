@@ -11,7 +11,7 @@ type CompletedEntry = {
 }
 
 export function TapPrayPage() {
-  const { surfacedPrayers, selectedListId, refreshPrayers, currentIndex, running, timeLeft, totalTime } = useTimer()
+  const { surfacedPrayers, selectedListId, refreshPrayers, currentIndex, running, timeLeft } = useTimer()
   const [completedStack, setCompletedStack] = useState<CompletedEntry[]>([])
   const [hiddenIds, setHiddenIds] = useState<Record<string, true>>({})
   const [autoFlipIds, setAutoFlipIds] = useState<Record<string, true>>({})
