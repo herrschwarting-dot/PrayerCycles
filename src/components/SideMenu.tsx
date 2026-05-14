@@ -1,4 +1,4 @@
-import { X, History, Download } from 'lucide-react'
+import { X, History, Download, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 type SideMenuProps = {
@@ -55,6 +55,16 @@ export function SideMenu({ open, onClose }: SideMenuProps) {
           >
             <Download size={18} />
             Export / Import
+          </button>
+
+          <div className="my-2 border-t border-slate-700" />
+
+          <button
+            onClick={() => {/* TODO: wire up reset */}}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-red-400 hover:bg-slate-700 transition-colors"
+          >
+            <Trash2 size={18} />
+            Reset Prayer Data
           </button>
         </nav>
       </div>

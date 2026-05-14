@@ -40,7 +40,7 @@ function advanceRotation(list: PrayerList, now: Date): PrayerList {
 
   let pointer = list.rotationState.pointer
 
-  if (list.cycle.lifecycle === 'finite' && pointer >= queue.length) {
+  if (list.cycle.lifecycle.type === 'finite' && pointer >= queue.length) {
     return { ...list, status: 'archived' }
   }
 
@@ -58,16 +58,17 @@ function advanceRotation(list: PrayerList, now: Date): PrayerList {
   }
 }
 
-async function pickLeastPrayed(queue: string[]): Promise<Prayer | undefined> {
+async function pickLeastPrayed(queue: string[], offsets: Record<string, number> = {}): Promise<Prayer | undefined> {
   if (queue.length === 0) return undefined
 
   const prayers = await Promise.all(queue.map((id) => db.prayers.get(id)))
   const valid = prayers.filter((p): p is Prayer => p !== undefined)
   if (valid.length === 0) return undefined
 
-  // Sort by tally (lowest first), then randomize among ties
-  const minTally = Math.min(...valid.map((p) => p.prayerTally))
-  const leastPrayed = valid.filter((p) => p.prayerTally === minTally)
+  // Use effective tally (real + ghost offset) for comparison
+  const effectiveTally = (p: Prayer) => p.prayerTally + (offsets[p.id] ?? 0)
+  const minTally = Math.min(...valid.map(effectiveTally))
+  const leastPrayed = valid.filter((p) => effectiveTally(p) === minTally)
 
   return leastPrayed[Math.floor(Math.random() * leastPrayed.length)]
 }
@@ -94,7 +95,7 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
     const queue = list.rotationState.queue
     if (queue.length === 0) continue
 
-    const prayer = await pickLeastPrayed(queue)
+    const prayer = await pickLeastPrayed(queue, list.rotationState.tallyOffsets ?? {})
 
     if (prayer) {
       surfaced.push({
@@ -132,16 +133,24 @@ export async function completePrayer(
     })
   }
 
-  if (list.cycle.persistence === 'one-session') {
-    const queue = list.rotationState.queue
-    let nextPointer = list.rotationState.pointer + 1
-    if (list.cycle.lifecycle === 'finite' && nextPointer >= queue.length) {
-      await db.prayerLists.update(listId, { status: 'archived' })
-    } else {
-      if (nextPointer >= queue.length) nextPointer = 0
-      await db.prayerLists.update(listId, {
-        rotationState: { ...list.rotationState, pointer: nextPointer },
-      })
+  // Check if all prayers in the list have been prayed — if so, bump completionTally
+  const queue = list.rotationState.queue
+  const offsets = list.rotationState.tallyOffsets ?? {}
+  if (queue.length > 0) {
+    const allPrayers = await Promise.all(queue.map((id) => db.prayers.get(id)))
+    const valid = allPrayers.filter((p): p is Prayer => p !== undefined)
+    if (valid.length > 0) {
+      const effectiveTally = (p: Prayer) => (p.id === prayerId ? p.prayerTally + 1 : p.prayerTally) + (offsets[p.id] ?? 0)
+      const minTally = Math.min(...valid.map(effectiveTally))
+      if (minTally > (list.completionTally ?? 0)) {
+        await db.prayerLists.update(listId, { completionTally: minTally })
+
+        // Check if finite lifecycle reached its limit
+        if (list.cycle.lifecycle.type === 'finite' && list.cycle.lifecycle.retireAfter && minTally >= list.cycle.lifecycle.retireAfter) {
+          await db.prayerLists.update(listId, { status: 'archived' })
+          return
+        }
+      }
     }
   }
 }

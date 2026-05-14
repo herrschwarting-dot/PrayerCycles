@@ -23,8 +23,20 @@ export async function createPrayer(
     const list = await db.prayerLists.get(listId)
     if (list) {
       const queue = [...list.rotationState.queue, id]
+      const offsets = { ...list.rotationState.tallyOffsets ?? {} }
+
+      // Ghost offset: match the current least-prayed level
+      if (list.rotationState.queue.length > 0) {
+        const existing = await Promise.all(list.rotationState.queue.map((pid) => db.prayers.get(pid)))
+        const valid = existing.filter((p): p is Prayer => p !== undefined)
+        if (valid.length > 0) {
+          const minEffective = Math.min(...valid.map((p) => p.prayerTally + (offsets[p.id] ?? 0)))
+          offsets[id] = minEffective
+        }
+      }
+
       await db.prayerLists.update(listId, {
-        rotationState: { ...list.rotationState, queue },
+        rotationState: { ...list.rotationState, queue, tallyOffsets: offsets },
       })
     }
   }
@@ -42,6 +54,17 @@ export async function bulkCreatePrayers(
     if (!list) throw new Error(`List ${listId} not found`)
 
     const newQueue = [...list.rotationState.queue]
+    const offsets = { ...list.rotationState.tallyOffsets ?? {} }
+
+    // Calculate ghost offset from existing prayers
+    let ghostOffset = 0
+    if (list.rotationState.queue.length > 0) {
+      const existing = await Promise.all(list.rotationState.queue.map((pid) => db.prayers.get(pid)))
+      const valid = existing.filter((p): p is Prayer => p !== undefined)
+      if (valid.length > 0) {
+        ghostOffset = Math.min(...valid.map((p) => p.prayerTally + (offsets[p.id] ?? 0)))
+      }
+    }
 
     for (let i = 0; i < titles.length; i++) {
       const trimmed = titles[i].trim()
@@ -58,10 +81,11 @@ export async function bulkCreatePrayers(
         prayerTally: 0,
       })
       newQueue.push(id)
+      if (ghostOffset > 0) offsets[id] = ghostOffset
     }
 
     await db.prayerLists.update(listId, {
-      rotationState: { ...list.rotationState, queue: newQueue },
+      rotationState: { ...list.rotationState, queue: newQueue, tallyOffsets: offsets },
     })
   })
   return ids
@@ -97,8 +121,10 @@ export async function deletePrayer(id: string): Promise<void> {
       if (list) {
         const queue = list.rotationState.queue.filter((pid) => pid !== id)
         const pointer = Math.min(list.rotationState.pointer, Math.max(0, queue.length - 1))
+        const offsets = { ...list.rotationState.tallyOffsets ?? {} }
+        delete offsets[id]
         await db.prayerLists.update(listId, {
-          rotationState: { ...list.rotationState, queue, pointer },
+          rotationState: { ...list.rotationState, queue, pointer, tallyOffsets: offsets },
         })
       }
     }

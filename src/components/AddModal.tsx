@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
-import type { PrayerList, Cadence, Persistence, Lifecycle } from '../db/types'
+import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
 
@@ -20,8 +20,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [listName, setListName] = useState('')
   const [listDescription, setListDescription] = useState('')
   const [cadence, setCadence] = useState<Cadence>('daily')
-  const [persistence, setPersistence] = useState<Persistence>('sustained')
-  const [lifecycle, setLifecycle] = useState<Lifecycle>('indefinite')
+  const [persistenceUnit, setPersistenceUnit] = useState<PersistenceUnit>('wake')
+  const [persistenceEvery, setPersistenceEvery] = useState(1)
+  const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
+  const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
 
   // Add prayer fields
@@ -40,8 +42,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setListName('')
     setListDescription('')
     setCadence('daily')
-    setPersistence('sustained')
-    setLifecycle('indefinite')
+    setPersistenceUnit('wake')
+    setPersistenceEvery(1)
+    setLifecycleType('indefinite')
+    setRetireAfter(1)
     setInitialPrayers('')
     setTitle('')
     setDescription('')
@@ -66,7 +70,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     const titles = initialPrayers.split('\n').filter((t) => t.trim())
     await createList(
       listName.trim(),
-      { cadence, persistence, lifecycle },
+      { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery }, lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) } },
       listDescription.trim(),
       titles,
     )
@@ -83,6 +87,22 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     onAdded()
     onClose()
   }
+
+  const allUnits: [PersistenceUnit, string, string][] = [
+    ['wake', 'Wake', 'Every X day(s)'],
+    ['passage', 'Passage', 'Every X week(s)'],
+    ['season', 'Season', 'Every X month(s)'],
+    ['orbit', 'Orbit', 'Every X year(s)'],
+  ]
+
+  function allowedUnits(c: Cadence): PersistenceUnit[] {
+    if (c === 'daily') return ['wake']
+    if (c === 'weekly') return ['wake', 'passage']
+    if (c === 'monthly') return ['wake', 'passage', 'season']
+    return ['wake', 'passage', 'season', 'orbit']
+  }
+
+  const visibleUnits = allUnits.filter(([unit]) => allowedUnits(cadence).includes(unit))
 
   if (!open) return null
 
@@ -147,11 +167,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             <div>
               <div className="mb-2 text-sm text-slate-400">Cycle</div>
               <div className="flex flex-wrap gap-2">
-                {(['daily', 'weekly', 'monthly'] as Cadence[]).map((c) => (
+                {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setCadence(c)}
+                    onClick={() => {
+                      setCadence(c)
+                      if (c === 'daily') { setPersistenceUnit('wake'); setPersistenceEvery(1) }
+                      else {
+                        const allowed = allowedUnits(c)
+                        if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
+                      }
+                    }}
                     className={`rounded px-3 py-1 text-sm capitalize ${cadence === c ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
                     {c}
@@ -161,34 +188,72 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">Persistence</div>
-              <div className="flex gap-2">
-                {(['sustained', 'one-session'] as Persistence[]).map((p) => (
+              <div className="mb-2 text-sm text-slate-400">Frequency</div>
+              <div className="flex flex-wrap gap-2">
+                {visibleUnits.map(([unit, label, tooltip]) => (
                   <button
-                    key={p}
+                    key={unit}
                     type="button"
-                    onClick={() => setPersistence(p)}
-                    className={`rounded px-3 py-1 text-sm ${persistence === p ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+                    title={tooltip}
+                    onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
+                    className={`rounded px-3 py-1 text-sm ${persistenceUnit === unit ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
-                    {p === 'sustained' ? 'Sustained' : 'One session'}
+                    {label}
                   </button>
                 ))}
+              </div>
+              <div className="mt-2 flex items-center gap-2 h-8">
+                <span className="text-sm text-slate-400">Every</span>
+                {cadence === 'daily' ? (
+                  <span className="w-16 text-sm text-slate-100 text-center">1</span>
+                ) : (
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={persistenceEvery}
+                    onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
+                    className="w-16 rounded bg-slate-700 px-2 py-1 text-sm text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500"
+                  />
+                )}
+                <span className="text-sm text-slate-400">
+                  {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? 'day' : 'days')
+                    : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? 'week' : 'weeks')
+                    : persistenceUnit === 'season' ? (persistenceEvery === 1 ? 'month' : 'months')
+                    : (persistenceEvery === 1 ? 'year' : 'years')}
+                </span>
               </div>
             </div>
 
             <div>
               <div className="mb-2 text-sm text-slate-400">Lifecycle</div>
               <div className="flex gap-2">
-                {(['indefinite', 'finite'] as Lifecycle[]).map((l) => (
+                {(['indefinite', 'finite'] as const).map((l) => (
                   <button
                     key={l}
                     type="button"
-                    onClick={() => setLifecycle(l)}
-                    className={`rounded px-3 py-1 text-sm capitalize ${lifecycle === l ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+                    onClick={() => setLifecycleType(l)}
+                    className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
                     {l}
                   </button>
                 ))}
+              </div>
+              <div className="mt-2 flex items-center gap-2 h-8">
+                <span className="text-sm text-slate-400">Retires after</span>
+                {lifecycleType === 'indefinite' ? (
+                  <span className="w-16 text-sm text-slate-100 text-center">∞</span>
+                ) : (
+                  <input
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={retireAfter}
+                    onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
+                    className="w-16 rounded bg-slate-700 px-2 py-1 text-sm text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500"
+                  />
+                )}
+                <span className="text-sm text-slate-400">{lifecycleType === 'indefinite' ? 'completions' : (retireAfter === 1 ? 'completion' : 'completions')}</span>
               </div>
             </div>
 

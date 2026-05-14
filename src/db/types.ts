@@ -1,7 +1,15 @@
-export type Cadence = 'daily' | 'weekly' | 'monthly' | 'custom'
-export type Persistence = 'one-session' | 'sustained'
-export type Lifecycle = 'indefinite' | 'finite'
+export type Cadence = 'daily' | 'weekly' | 'monthly' | 'annually'
+export type PersistenceUnit = 'wake' | 'passage' | 'season' | 'orbit'
+export type Lifecycle = {
+  type: 'indefinite' | 'finite'
+  retireAfter?: number
+}
 export type ListStatus = 'active' | 'archived'
+
+export type Persistence = {
+  unit: PersistenceUnit
+  every: number
+}
 
 export type Cycle = {
   cadence: Cadence
@@ -13,6 +21,7 @@ export type RotationState = {
   queue: string[]
   pointer: number
   lastCadenceBoundary: number
+  tallyOffsets: Record<string, number>
 }
 
 export type PrayerList = {
@@ -22,6 +31,7 @@ export type PrayerList = {
   cycle: Cycle
   status: ListStatus
   rotationState: RotationState
+  completionTally: number
   createdAt: number
 }
 

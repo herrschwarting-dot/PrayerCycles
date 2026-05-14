@@ -5,6 +5,7 @@ import { SearchBar } from './components/SearchBar'
 import { BottomNav } from './components/BottomNav'
 import { SideMenu } from './components/SideMenu'
 import { AddModal } from './components/AddModal'
+import { TimerProvider } from './context/TimerContext'
 import { TodayPage } from './routes/TodayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
@@ -18,6 +19,7 @@ export function App() {
 
   return (
     <BrowserRouter basename="/PrayerCycles">
+      <TimerProvider>
       <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
         <SearchBar onMenuOpen={() => setMenuOpen(true)} />
         <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
@@ -41,6 +43,7 @@ export function App() {
         <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
         <BottomNav />
       </div>
+      </TimerProvider>
     </BrowserRouter>
   )
 }

@@ -14,7 +14,7 @@ export function PrayerCard({ surfaced, onComplete }: PrayerCardProps) {
   const startDate = new Date(prayer.createdAt)
   const tallyLabel =
     prayer.prayerTally > 0
-      ? `${prayer.prayerTally} · since ${startDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}`
+      ? `Prayed ${prayer.prayerTally} ${prayer.prayerTally === 1 ? 'time' : 'times'} since ${startDate.toLocaleDateString('en-US')}`
       : null
 
   function handleClick() {
@@ -44,7 +44,7 @@ export function PrayerCard({ surfaced, onComplete }: PrayerCardProps) {
         className={`relative transition-all duration-500 transform-3d ${flipping ? 'rotate-y-180' : ''}`}
       >
         {/* Front */}
-        <div className="rounded-lg bg-slate-800 p-4 shadow-md backface-hidden border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)]">
+        <div className="rounded-lg bg-slate-800 p-4 shadow-md backface-hidden border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)] overflow-hidden break-words">
           <div className="mb-1 text-xs font-medium text-slate-400 uppercase tracking-wide">
             {listName}
           </div>

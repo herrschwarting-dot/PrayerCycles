@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { Sun, List, Timer } from 'lucide-react'
+import { Square, ScrollText, Clock } from 'lucide-react'
 
 const tabs = [
-  { to: '/', icon: Sun, label: "Today's Prayers" },
-  { to: '/lists', icon: List, label: 'Lists' },
-  { to: '/timer', icon: Timer, label: 'Timer' },
+  { to: '/', icon: Square, label: 'Today' },
+  { to: '/lists', icon: ScrollText, label: 'Prayer Lists' },
+  { to: '/timer', icon: Clock, label: 'Timebox' },
 ] as const
 
 export function BottomNav() {

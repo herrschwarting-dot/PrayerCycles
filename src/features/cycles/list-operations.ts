@@ -35,7 +35,8 @@ export async function createList(
     description,
     cycle,
     status: 'active',
-    rotationState: { queue, pointer: 0, lastCadenceBoundary: Date.now() },
+    rotationState: { queue, pointer: 0, lastCadenceBoundary: Date.now(), tallyOffsets: {} },
+    completionTally: 0,
     createdAt: Date.now(),
   }
 
