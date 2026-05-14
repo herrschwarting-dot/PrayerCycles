@@ -50,7 +50,7 @@ function AppContent() {
 
 export function App() {
   return (
-    <BrowserRouter basename="/PrayerCycles">
+    <BrowserRouter>
       <AppContent />
     </BrowserRouter>
   )
