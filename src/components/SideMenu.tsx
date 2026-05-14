@@ -31,7 +31,7 @@ export function SideMenu({ open, onClose }: SideMenuProps) {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-700">
-          <h2 className="text-lg font-semibold text-slate-100">PrayerCycles</h2>
+          <h2 className="text-lg font-semibold text-slate-100">Prayer Cycles</h2>
           <button
             onClick={onClose}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
