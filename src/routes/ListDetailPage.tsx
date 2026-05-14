@@ -267,13 +267,13 @@ export function ListDetailPage() {
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={handleSaveList}
-                  className="rounded-lg bg-slate-700 px-3 py-1 text-sm text-white hover:bg-slate-600"
+                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => { setEditing(false); setName(list.name); setDescription(list.description) }}
-                  className="rounded-lg bg-white/30 px-3 py-1 text-sm text-slate-700 hover:bg-white/20"
+                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
                   Cancel
                 </button>
@@ -281,54 +281,60 @@ export function ListDetailPage() {
             </div>
           ) : (
             <>
-              <p className="text-xs text-slate-400 leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
-              <h2 className="text-xl font-semibold text-slate-100 -mt-0.5">{list.name}</h2>
+              {/* Active/Deactivated toggle — top right */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs text-slate-400 leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
+                  <h2 className="text-xl font-semibold text-slate-100 -mt-0.5">{list.name}</h2>
+                </div>
+                <button
+                  onClick={handleToggleArchive}
+                  className="flex items-center gap-1.5 shrink-0 mt-1"
+                  title={list.status === 'active' ? 'Active — tap to deactivate' : 'Deactivated — tap to reactivate'}
+                >
+                  <span className="text-[10px] text-slate-500">{list.status === 'active' ? 'Active' : 'Inactive'}</span>
+                  <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${list.status === 'active' ? 'bg-green-500' : 'bg-slate-600'}`}>
+                    <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${list.status === 'active' ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
+                  </div>
+                </button>
+              </div>
               {list.description && (
                 <p className="mt-1 text-sm text-slate-300">{list.description}</p>
               )}
-              {list.status === 'archived' && (
-                <span className="mt-1 inline-block rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">
-                  Archived
-                </span>
-              )}
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex items-center justify-between">
                 <button
                   onClick={() => setEditing(true)}
-                  className="rounded-lg bg-white/30 px-3 py-1 text-sm text-slate-700 hover:bg-white/20"
+                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
                   Edit
                 </button>
-                <button
-                  onClick={handleToggleArchive}
-                  className="rounded-lg bg-white/30 px-3 py-1 text-sm text-slate-700 hover:bg-white/20"
-                >
-                  {list.status === 'active' ? 'Archive' : 'Reactivate'}
-                </button>
-                {!confirmDelete ? (
-                  <button
-                    onClick={() => setConfirmDelete(true)}
-                    className="flex items-center gap-1 rounded-lg bg-white/30 px-3 py-1 text-sm text-red-300 hover:bg-white/20"
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-red-300">Delete list and all prayers?</span>
+                <div>
+                  {!confirmDelete ? (
                     <button
-                      onClick={handleDeleteList}
-                      className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-500"
+                      onClick={() => setConfirmDelete(true)}
+                      className="flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     >
-                      Yes
+                      <Trash2 size={14} />
+                      Delete
                     </button>
-                    <button
-                      onClick={() => setConfirmDelete(false)}
-                      className="rounded-lg bg-white/30 px-2 py-1 text-xs text-slate-700 hover:bg-white/20"
-                    >
-                      No
-                    </button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-red-400">Delete?</span>
+                      <button
+                        onClick={handleDeleteList}
+                        className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-500 transition-colors"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(false)}
+                        className="rounded-lg border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-600 transition-colors"
+                      >
+                        No
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -363,7 +369,7 @@ export function ListDetailPage() {
                 </button>
                 <button
                   onClick={() => { setShowAddPrayer(false); setNewPrayerText('') }}
-                  className="rounded-lg bg-white/30 px-3 py-1 text-sm text-slate-700 hover:bg-white/20"
+                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
                   Cancel
                 </button>

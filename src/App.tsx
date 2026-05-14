@@ -1,35 +1,36 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Plus } from 'lucide-react'
-import { SearchBar } from './components/SearchBar'
+import { TimerBar } from './components/TimerBar'
 import { BottomNav } from './components/BottomNav'
 import { SideMenu } from './components/SideMenu'
 import { AddModal } from './components/AddModal'
 import { TimerProvider } from './context/TimerContext'
-import { TodayPage } from './routes/TodayPage'
+import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
 import { TimerPage } from './routes/TimerPage'
 import { HistoryPage } from './routes/HistoryPage'
 import { ExportPage } from './routes/ExportPage'
+import { TrashPage } from './routes/TrashPage'
 
-export function App() {
+function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <BrowserRouter basename="/PrayerCycles">
       <TimerProvider>
       <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
-        <SearchBar onMenuOpen={() => setMenuOpen(true)} />
+        <TimerBar onMenuOpen={() => setMenuOpen(true)} />
         <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         <Routes>
-          <Route path="/" element={<TodayPage />} />
+          <Route path="/" element={<TapPrayPage />} />
           <Route path="/lists" element={<ListsPage />} />
           <Route path="/lists/:id" element={<ListDetailPage />} />
           <Route path="/timer" element={<TimerPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/export" element={<ExportPage />} />
+          <Route path="/trash" element={<TrashPage />} />
         </Routes>
 
         <button
@@ -44,6 +45,13 @@ export function App() {
         <BottomNav />
       </div>
       </TimerProvider>
+  )
+}
+
+export function App() {
+  return (
+    <BrowserRouter basename="/PrayerCycles">
+      <AppContent />
     </BrowserRouter>
   )
 }

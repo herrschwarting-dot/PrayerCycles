@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { SurfacedPrayer } from '../lib/surfacing'
 
 type PrayerCardProps = {
   surfaced: SurfacedPrayer
   onComplete: (prayerId: string, listId: string) => void
+  autoFlip?: boolean
 }
 
-export function PrayerCard({ surfaced, onComplete }: PrayerCardProps) {
+export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) {
   const [flipping, setFlipping] = useState(false)
   const [fading, setFading] = useState(false)
+  const hasAutoFlipped = useRef(false)
   const { prayer, listName } = surfaced
 
   const startDate = new Date(prayer.createdAt)
@@ -16,6 +18,18 @@ export function PrayerCard({ surfaced, onComplete }: PrayerCardProps) {
     prayer.prayerTally > 0
       ? `Prayed ${prayer.prayerTally} ${prayer.prayerTally === 1 ? 'time' : 'times'} since ${startDate.toLocaleDateString('en-US')}`
       : null
+
+  // Auto-flip when timer completes this prayer
+  useEffect(() => {
+    if (autoFlip && !hasAutoFlipped.current && !flipping) {
+      hasAutoFlipped.current = true
+      setFlipping(true)
+      setTimeout(() => setFading(true), 400)
+      setTimeout(() => {
+        onComplete(prayer.id, surfaced.listId)
+      }, 700)
+    }
+  }, [autoFlip, flipping, onComplete, prayer.id, surfaced.listId])
 
   function handleClick() {
     if (flipping) return

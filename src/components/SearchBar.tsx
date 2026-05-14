@@ -2,9 +2,11 @@ import { Menu, Search } from 'lucide-react'
 
 type SearchBarProps = {
   onMenuOpen: () => void
+  searchQuery?: string
+  onSearchChange?: (query: string) => void
 }
 
-export function SearchBar({ onMenuOpen }: SearchBarProps) {
+export function SearchBar({ onMenuOpen, searchQuery = '', onSearchChange }: SearchBarProps) {
   return (
     <div className="sticky top-0 z-40 bg-slate-900 px-4 pb-2 pt-4">
       <div className="mx-auto flex max-w-lg items-center gap-2">
@@ -20,6 +22,8 @@ export function SearchBar({ onMenuOpen }: SearchBarProps) {
           <input
             type="text"
             placeholder="Search prayers..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none"
           />
         </div>

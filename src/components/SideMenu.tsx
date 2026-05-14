@@ -57,6 +57,14 @@ export function SideMenu({ open, onClose }: SideMenuProps) {
             Export / Import
           </button>
 
+          <button
+            onClick={() => goTo('/trash')}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+          >
+            <Trash2 size={18} />
+            Deleted Lists
+          </button>
+
           <div className="my-2 border-t border-slate-700" />
 
           <button

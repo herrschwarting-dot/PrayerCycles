@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { Square, ScrollText, Clock } from 'lucide-react'
 
 const tabs = [
-  { to: '/', icon: Square, label: 'Today' },
+  { to: '/', icon: Square, label: 'Tap Pray' },
   { to: '/lists', icon: ScrollText, label: 'Prayer Lists' },
   { to: '/timer', icon: Clock, label: 'Timebox' },
 ] as const

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, ty
 import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists } from '../features/cycles/list-operations'
 import { getPrayersByList } from '../features/prayers/prayer-operations'
-import { getSurfacedPrayers } from '../lib/surfacing'
+import { getSurfacedPrayers, type SurfacedPrayer } from '../lib/surfacing'
 
 type TimerMode = 'custom' | 'until-done'
 
@@ -12,6 +12,7 @@ type TimerState = {
   lists: PrayerList[]
   selectedListId: string | null
   prayers: Prayer[]
+  surfacedPrayers: SurfacedPrayer[]
   dropdownOpen: boolean
   prayerIncrement: number
   timerMode: TimerMode
@@ -26,11 +27,13 @@ type TimerState = {
   setPrayerIncrement: (val: number) => void
   setTimerMode: (mode: TimerMode) => void
   setCustomMinutes: (val: number) => void
+  setTimeLeft: (val: number) => void
   handleStart: () => void
   handlePause: () => void
   handleReset: () => void
   pickRandom: () => void
   refreshLists: () => void
+  refreshPrayers: () => void
 }
 
 const TimerContext = createContext<TimerState | null>(null)
@@ -39,6 +42,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [lists, setLists] = useState<PrayerList[]>([])
   const [selectedListId, setSelectedListId] = useState<string | null>(TODAY_ID)
   const [prayers, setPrayers] = useState<Prayer[]>([])
+  const [surfacedPrayers, setSurfacedPrayers] = useState<SurfacedPrayer[]>([])
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const [prayerIncrement, setPrayerIncrement] = useState(60)
@@ -57,17 +61,31 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     refreshLists()
   }, [refreshLists])
 
-  // Load prayers — special handling for the Today virtual list
-  useEffect(() => {
-    if (!selectedListId) { setPrayers([]); return }
+  const loadPrayers = useCallback(() => {
+    if (!selectedListId) { setPrayers([]); setSurfacedPrayers([]); return }
     if (selectedListId === TODAY_ID) {
       getSurfacedPrayers().then((surfaced) => {
+        setSurfacedPrayers(surfaced)
         setPrayers(surfaced.map((s) => s.prayer))
       })
     } else {
-      getPrayersByList(selectedListId).then(setPrayers)
+      getPrayersByList(selectedListId).then((p) => {
+        setPrayers(p)
+        const list = lists.find((l) => l.id === selectedListId)
+        const listName = list?.name ?? ''
+        setSurfacedPrayers(p.map((prayer) => ({ prayer, listId: selectedListId, listName })))
+      })
     }
-  }, [selectedListId])
+  }, [selectedListId, lists])
+
+  // Load prayers when list changes
+  useEffect(() => {
+    loadPrayers()
+  }, [loadPrayers])
+
+  const refreshPrayers = useCallback(() => {
+    loadPrayers()
+  }, [loadPrayers])
 
   const totalTime = timerMode === 'until-done'
     ? prayers.length * prayerIncrement
@@ -82,11 +100,15 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     ? prayerIncrement - (elapsed % prayerIncrement)
     : 0
 
+  const prevTotalTimeRef = useRef(totalTime)
   useEffect(() => {
-    if (!running) {
+    // Only reset timeLeft when totalTime actually changes (config change),
+    // not when pausing/resuming
+    if (prevTotalTimeRef.current !== totalTime && !running) {
       setTimeLeft(totalTime)
     }
-  }, [totalTime, prayerIncrement, running, prayers.length])
+    prevTotalTimeRef.current = totalTime
+  }, [totalTime, running])
 
   useEffect(() => {
     if (running) {
@@ -130,6 +152,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       lists,
       selectedListId,
       prayers,
+      surfacedPrayers,
       dropdownOpen,
       prayerIncrement,
       timerMode,
@@ -144,11 +167,13 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setPrayerIncrement,
       setTimerMode,
       setCustomMinutes,
+      setTimeLeft,
       handleStart,
       handlePause,
       handleReset,
       pickRandom,
       refreshLists,
+      refreshPrayers,
     }}>
       {children}
     </TimerContext.Provider>

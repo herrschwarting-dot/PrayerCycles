@@ -1,25 +1,118 @@
-import { useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
 
+function EditableTime({
+  seconds,
+  onChangeSeconds,
+  disabled,
+}: {
+  seconds: number
+  onChangeSeconds: (s: number) => void
+  disabled: boolean
+}) {
+  const [editingPart, setEditingPart] = useState<'min' | 'sec' | null>(null)
+  const [editMin, setEditMin] = useState('')
+  const [editSec, setEditSec] = useState('')
+  const minRef = useRef<HTMLInputElement>(null)
+  const secRef = useRef<HTMLInputElement>(null)
+
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+
+  function startEdit(part: 'min' | 'sec') {
+    if (disabled) return
+    if (part === 'min') {
+      setEditMin('')
+      setEditSec(String(s))
+    } else {
+      setEditMin(String(m))
+      setEditSec('')
+    }
+    setEditingPart(part)
+    setTimeout(() => (part === 'min' ? minRef : secRef).current?.focus(), 0)
+  }
+
+  function commitEdit() {
+    const mins = Math.max(0, Math.min(999, parseInt(editMin) || 0))
+    const secs = Math.max(0, Math.min(59, parseInt(editSec) || 0))
+    onChangeSeconds(mins * 60 + secs)
+    setEditingPart(null)
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') commitEdit()
+    if (e.key === 'Escape') setEditingPart(null)
+  }
+
+  const clickClass = disabled ? '' : 'cursor-pointer hover:text-sky-200 transition-colors'
+
+  return (
+    <div className="flex items-center gap-0.5 justify-center" onBlur={(e) => {
+      if (editingPart && !e.currentTarget.contains(e.relatedTarget)) commitEdit()
+    }}>
+      {editingPart === 'min' ? (
+        <input
+          ref={minRef}
+          type="text"
+          inputMode="numeric"
+          value={editMin}
+          onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={handleKeyDown}
+          className="w-14 text-2xl font-mono font-bold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+        />
+      ) : (
+        <span
+          onClick={() => startEdit('min')}
+          className={`text-3xl font-mono font-bold text-slate-100 tracking-wider ${clickClass}`}
+          title={disabled ? undefined : 'Click to edit minutes'}
+        >
+          {m}
+        </span>
+      )}
+      <span className="text-3xl font-mono font-bold text-slate-500">:</span>
+      {editingPart === 'sec' ? (
+        <input
+          ref={secRef}
+          type="text"
+          inputMode="numeric"
+          value={editSec}
+          onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={handleKeyDown}
+          className="w-14 text-2xl font-mono font-bold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+        />
+      ) : (
+        <span
+          onClick={() => startEdit('sec')}
+          className={`text-3xl font-mono font-bold text-slate-100 tracking-wider ${clickClass}`}
+          title={disabled ? undefined : 'Click to edit seconds'}
+        >
+          {String(s).padStart(2, '0')}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export function TimerPage() {
+  const [localDropdown, setLocalDropdown] = useState(false)
   const {
     lists,
     selectedListId,
     prayers,
-    dropdownOpen,
     prayerIncrement,
     timerMode,
-    customMinutes,
     running,
     timeLeft,
+    totalTime,
     currentIndex,
     incrementTimeLeft,
     setSelectedListId,
-    setDropdownOpen,
     setPrayerIncrement,
     setTimerMode,
     setCustomMinutes,
+    setTimeLeft,
     handleStart,
     handlePause,
     handleReset,
@@ -27,25 +120,48 @@ export function TimerPage() {
     refreshLists,
   } = useTimer()
 
+  const timeboxRef = useRef<HTMLDivElement>(null)
+  const prevTimeLeftRef = useRef(timeLeft)
+
   // Refresh lists when page is visited
   useEffect(() => { refreshLists() }, [refreshLists])
 
-  function formatTime(s: number): string {
-    const m = Math.floor(s / 60)
-    const sec = s % 60
-    return `${m}:${sec.toString().padStart(2, '0')}`
-  }
+  // Confetti when timer completes
+  const fireConfetti = useCallback(() => {
+    const el = timeboxRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = (rect.left + rect.width / 2) / window.innerWidth
+    const y = (rect.top + rect.height / 2) / window.innerHeight
 
-  const incrementMinutes = Math.floor(prayerIncrement / 60)
-  const incrementSeconds = prayerIncrement % 60
+    const defaults = { origin: { x, y }, zIndex: 5, ticks: 160 }
+
+    confetti({ ...defaults, particleCount: 150, spread: 360, startVelocity: 36, scalar: 1.3 })
+    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 60 })
+    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 120 })
+  }, [])
+
+  useEffect(() => {
+    if (prevTimeLeftRef.current > 0 && timeLeft === 0 && !running && prayers.length > 0) {
+      fireConfetti()
+    }
+    prevTimeLeftRef.current = timeLeft
+  }, [timeLeft, running, prayers.length, fireConfetti])
+
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
   const displayName = isToday ? "Today's Prayers" : (selectedList?.name ?? 'Select a prayer list')
   const hasSelection = isToday || !!selectedList
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
   const upcomingPrayers = currentPrayer
-    ? prayers.slice((running || timeLeft < (timerMode === 'until-done' ? prayers.length * prayerIncrement : customMinutes * 60)) ? currentIndex + 1 : 1)
+    ? prayers.slice((running || timeLeft < totalTime) ? currentIndex + 1 : 1)
     : []
+
+  // Big timer: shows per-prayer countdown when running or paused mid-session
+  const midSession = timeLeft > 0 && timeLeft < totalTime
+  const bigTimerValue = (running || midSession) ? incrementTimeLeft : prayerIncrement
+  // Total timer: shows total timebox countdown
+  const totalTimerValue = timeLeft
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
@@ -55,13 +171,13 @@ export function TimerPage() {
         <div className="relative">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => { if (!running) setDropdownOpen(!dropdownOpen) }}
+              onClick={() => { if (!running) setLocalDropdown(!localDropdown) }}
               className={`flex-1 flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3 text-left transition-colors border border-slate-700 hover:border-slate-600 ${running ? 'opacity-50' : ''}`}
             >
               <span className={`text-lg font-semibold ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
                 {displayName}
               </span>
-              <ChevronDown size={18} className={`text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown size={18} className={`text-slate-400 transition-transform ${localDropdown ? 'rotate-180' : ''}`} />
             </button>
             <button
               onClick={pickRandom}
@@ -71,13 +187,12 @@ export function TimerPage() {
               <Dices size={20} />
             </button>
           </div>
-          {dropdownOpen && !running && (
+          {localDropdown && !running && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+              <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
               <div className="absolute z-50 mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 shadow-lg overflow-hidden">
-                {/* Today's Prayers — always first */}
                 <button
-                  onClick={() => { setSelectedListId(TODAY_ID); setDropdownOpen(false) }}
+                  onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
                   className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
                     isToday ? 'text-sky-300' : 'text-slate-200'
                   }`}
@@ -90,7 +205,7 @@ export function TimerPage() {
                 {lists.map((list) => (
                   <button
                     key={list.id}
-                    onClick={() => { setSelectedListId(list.id); setDropdownOpen(false) }}
+                    onClick={() => { setSelectedListId(list.id); setLocalDropdown(false) }}
                     className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
                       selectedListId === list.id ? 'text-sky-300' : 'text-slate-200'
                     }`}
@@ -107,7 +222,7 @@ export function TimerPage() {
         </div>
 
         {/* Timebox */}
-        <div className="rounded-lg bg-slate-800 border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)] overflow-hidden">
+        <div ref={timeboxRef} className="relative z-10 rounded-lg bg-slate-800 border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)] overflow-hidden">
           <div className="flex min-h-[240px]">
 
             {/* Left: current prayer with description */}
@@ -131,23 +246,53 @@ export function TimerPage() {
               )}
             </div>
 
-            {/* Right: timer + controls + settings */}
-            <div className="w-48 flex flex-col items-center justify-between p-4">
+            {/* Right: timers + controls */}
+            <div className="relative w-56 flex flex-col items-center justify-center gap-3 p-4">
 
-              {/* Timer */}
-              <div className="text-center">
-                <div className="text-3xl font-mono font-bold text-slate-100 tracking-wider">
-                  {formatTime(timeLeft)}
+              {/* Auto-toggle — top right corner */}
+              <button
+                onClick={() => { if (!running) setTimerMode(timerMode === 'until-done' ? 'custom' : 'until-done') }}
+                disabled={running}
+                className={`absolute top-3 right-3 flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
+                title={timerMode === 'until-done'
+                  ? 'The total timebox automatically adjusts to cover every prayer in the list based on your allotted time per prayer.'
+                  : 'Total timebox is set manually. Turn on to automatically adjust based on your prayer list.'}
+              >
+                <span className="text-[9px] text-slate-500 whitespace-nowrap">Auto-Toggle Total Timebox</span>
+                <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-green-500' : 'bg-slate-600'}`}>
+                  <div className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[13px]' : 'translate-x-[2px]'}`} />
                 </div>
-                {running && currentPrayer && prayerIncrement > 0 && (
-                  <div className="mt-1 text-xs text-slate-500">
-                    {formatTime(incrementTimeLeft)}
-                  </div>
-                )}
+              </button>
+
+              {/* Timers — same size, separated by / */}
+              <div className="flex items-end gap-1">
+                <div className="text-center" title="Time per prayer — click to edit">
+                  <div className="text-[10px] text-slate-500 mb-1">Time Per Prayer</div>
+                  <EditableTime
+                    seconds={bigTimerValue}
+                    onChangeSeconds={setPrayerIncrement}
+                    disabled={running}
+                  />
+                </div>
+                <span className="text-2xl font-light text-slate-600 pb-[1px]">/</span>
+                <div className="text-center" title="Total timebox — click to edit">
+                  <div className="text-[10px] text-slate-500 mb-1">Total Timebox</div>
+                  <EditableTime
+                    seconds={totalTimerValue}
+                    onChangeSeconds={(s) => {
+                      if (!running) {
+                        setTimerMode('custom')
+                        setCustomMinutes(Math.max(1, Math.ceil(s / 60)))
+                        setTimeLeft(s)
+                      }
+                    }}
+                    disabled={running}
+                  />
+                </div>
               </div>
 
               {/* Controls */}
-              <div className="flex gap-2 my-3">
+              <div className="flex gap-2">
                 {!running ? (
                   <button
                     onClick={handleStart}
@@ -173,67 +318,6 @@ export function TimerPage() {
                 >
                   <RotateCcw size={20} />
                 </button>
-              </div>
-
-              {/* Settings */}
-              <div className="w-full space-y-2 pt-2 border-t border-slate-700">
-                <div className="flex gap-1 justify-center">
-                  <button
-                    onClick={() => { if (!running) setTimerMode('until-done') }}
-                    className={`rounded px-2 py-0.5 text-xs ${timerMode === 'until-done' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'} ${running ? 'opacity-50' : ''}`}
-                  >
-                    Full
-                  </button>
-                  <button
-                    onClick={() => { if (!running) setTimerMode('custom') }}
-                    className={`rounded px-2 py-0.5 text-xs ${timerMode === 'custom' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'} ${running ? 'opacity-50' : ''}`}
-                  >
-                    Custom
-                  </button>
-                </div>
-                {timerMode === 'custom' && (
-                  <div className="flex items-center gap-1 justify-center">
-                    <input
-                      type="number"
-                      min={1}
-                      max={999}
-                      value={customMinutes}
-                      onChange={(e) => { if (!running) setCustomMinutes(Math.max(1, Number(e.target.value))) }}
-                      disabled={running}
-                      className={`w-12 rounded bg-slate-700 px-1 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500 ${running ? 'opacity-50' : ''}`}
-                    />
-                    <span className="text-xs text-slate-400">min</span>
-                  </div>
-                )}
-
-                <div className="text-center">
-                  <div className="text-xs text-slate-500 mb-1">Per prayer</div>
-                  <div className="flex items-center gap-1 justify-center">
-                    <input
-                      type="number"
-                      min={0}
-                      max={59}
-                      value={incrementMinutes}
-                      onChange={(e) => {
-                        if (!running) setPrayerIncrement(Math.max(0, Number(e.target.value)) * 60 + incrementSeconds)
-                      }}
-                      disabled={running}
-                      className={`w-10 rounded bg-slate-700 px-1 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500 ${running ? 'opacity-50' : ''}`}
-                    />
-                    <span className="text-xs text-slate-500">:</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={59}
-                      value={incrementSeconds}
-                      onChange={(e) => {
-                        if (!running) setPrayerIncrement(incrementMinutes * 60 + Math.max(0, Math.min(59, Number(e.target.value))))
-                      }}
-                      disabled={running}
-                      className={`w-10 rounded bg-slate-700 px-1 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500 ${running ? 'opacity-50' : ''}`}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
