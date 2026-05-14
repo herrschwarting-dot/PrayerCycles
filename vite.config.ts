@@ -10,10 +10,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.png'],
+      includeAssets: ['icons/*.png', 'favicon.svg'],
       manifest: {
-        name: 'PrayerCycles',
-        short_name: 'PrayerCycles',
+        name: 'Prayer Cycles',
+        short_name: 'Prayer Cycles',
         description: 'Remember to pray for the people in your life.',
         theme_color: '#1e293b',
         background_color: '#0f172a',
