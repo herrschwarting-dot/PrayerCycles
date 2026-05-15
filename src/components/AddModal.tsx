@@ -108,7 +108,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-slate-800 p-6 sm:rounded-2xl">
+      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-slate-800 p-6 pb-24 sm:rounded-2xl sm:pb-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-100">
             {mode === 'create-list' ? '+ Prayer List' : '+ Prayer'}
