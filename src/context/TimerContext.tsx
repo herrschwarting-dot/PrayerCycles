@@ -46,8 +46,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const [prayerIncrement, setPrayerIncrement] = useState(60)
-  const [timerMode, setTimerMode] = useState<TimerMode>('until-done')
-  const [customMinutes, setCustomMinutes] = useState(10)
+  const [timerMode, setTimerMode] = useState<TimerMode>('custom')
+  const [customMinutes, setCustomMinutes] = useState(20)
+  const hasAutoSwitched = useRef(false)
 
   const [running, setRunning] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -86,6 +87,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const refreshPrayers = useCallback(() => {
     loadPrayers()
   }, [loadPrayers])
+
+  // Auto-switch to until-done once prayers exist (avoids goofy 1:00/0:00 on first launch)
+  useEffect(() => {
+    if (!hasAutoSwitched.current && prayers.length > 0) {
+      hasAutoSwitched.current = true
+      setTimerMode('until-done')
+    }
+  }, [prayers.length])
 
   const totalTime = timerMode === 'until-done'
     ? prayers.length * prayerIncrement
