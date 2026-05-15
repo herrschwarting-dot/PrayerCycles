@@ -1,5 +1,6 @@
 import { db } from '../../db/db'
 import { generateId } from '../../lib/id'
+import { snapshotToLocalStorage } from '../backup/local-backup'
 import type { Prayer } from '../../db/types'
 
 export async function createPrayer(
@@ -41,6 +42,7 @@ export async function createPrayer(
     }
   }
 
+  snapshotToLocalStorage()
   return id
 }
 
@@ -88,6 +90,7 @@ export async function bulkCreatePrayers(
       rotationState: { ...list.rotationState, queue: newQueue, tallyOffsets: offsets },
     })
   })
+  snapshotToLocalStorage()
   return ids
 }
 
@@ -109,6 +112,7 @@ export async function updatePrayer(
   changes: Partial<Omit<Prayer, 'id' | 'createdAt'>>,
 ): Promise<void> {
   await db.prayers.update(id, changes)
+  snapshotToLocalStorage()
 }
 
 export async function deletePrayer(id: string): Promise<void> {
@@ -132,6 +136,7 @@ export async function deletePrayer(id: string): Promise<void> {
     await db.prayerLogs.where('prayerId').equals(id).delete()
     await db.prayers.delete(id)
   })
+  snapshotToLocalStorage()
 }
 
 export async function recordPrayed(prayerId: string, listId: string): Promise<void> {
@@ -151,6 +156,7 @@ export async function recordPrayed(prayerId: string, listId: string): Promise<vo
       })
     }
   })
+  snapshotToLocalStorage()
 }
 
 export async function searchPrayers(query: string): Promise<Prayer[]> {

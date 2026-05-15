@@ -117,7 +117,7 @@ export function TapPrayPage() {
           <p className="text-slate-400">No prayers to show.</p>
         </div>
       ) : (
-        <div className="mx-auto columns-2 gap-3 sm:columns-2 md:columns-3 max-w-2xl space-y-3">
+        <div className="mx-auto columns-2 gap-3 md:columns-3 max-w-2xl [&>*]:mb-3">
           {visible.map((s) => (
             <PrayerCard
               key={`${s.prayer.id}-${s.listId}`}

@@ -1,35 +1,44 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { TimerBar } from './components/TimerBar'
 import { BottomNav } from './components/BottomNav'
 import { SideMenu } from './components/SideMenu'
 import { AddModal } from './components/AddModal'
+import { ExportImportModal } from './components/ExportImportModal'
 import { TimerProvider } from './context/TimerContext'
+import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
 import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
 import { TimerPage } from './routes/TimerPage'
 import { HistoryPage } from './routes/HistoryPage'
-import { ExportPage } from './routes/ExportPage'
 import { TrashPage } from './routes/TrashPage'
 
 function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+
+  useEffect(() => {
+    checkAndRestoreFromLocalStorage().then((restored) => {
+      if (restored) {
+        window.dispatchEvent(new Event('prayercycles:refresh'))
+      }
+    })
+  }, [])
 
   return (
       <TimerProvider>
       <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
         <TimerBar onMenuOpen={() => setMenuOpen(true)} />
-        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onExportImport={() => setExportOpen(true)} />
         <Routes>
           <Route path="/" element={<TapPrayPage />} />
           <Route path="/lists" element={<ListsPage />} />
           <Route path="/lists/:id" element={<ListDetailPage />} />
           <Route path="/timer" element={<TimerPage />} />
           <Route path="/history" element={<HistoryPage />} />
-          <Route path="/export" element={<ExportPage />} />
           <Route path="/trash" element={<TrashPage />} />
         </Routes>
 
@@ -42,6 +51,7 @@ function AppContent() {
         </button>
 
         <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
+        <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
         <BottomNav />
       </div>
       </TimerProvider>

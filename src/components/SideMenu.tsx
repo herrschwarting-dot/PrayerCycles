@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 type SideMenuProps = {
   open: boolean
   onClose: () => void
+  onExportImport: () => void
 }
 
-export function SideMenu({ open, onClose }: SideMenuProps) {
+export function SideMenu({ open, onClose, onExportImport }: SideMenuProps) {
   const navigate = useNavigate()
 
   function goTo(path: string) {
@@ -50,7 +51,7 @@ export function SideMenu({ open, onClose }: SideMenuProps) {
             Prayer History
           </button>
           <button
-            onClick={() => goTo('/export')}
+            onClick={() => { onClose(); onExportImport() }}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
           >
             <Download size={18} />

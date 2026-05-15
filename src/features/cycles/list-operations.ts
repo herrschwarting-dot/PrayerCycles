@@ -1,5 +1,6 @@
 import { db } from '../../db/db'
 import { generateId } from '../../lib/id'
+import { snapshotToLocalStorage } from '../backup/local-backup'
 import type { Cycle, ListStatus, PrayerList } from '../../db/types'
 
 export async function createList(
@@ -47,6 +48,7 @@ export async function createList(
     }
   })
 
+  snapshotToLocalStorage()
   return id
 }
 
@@ -67,14 +69,17 @@ export async function updateList(
   changes: Partial<Omit<PrayerList, 'id' | 'createdAt'>>,
 ): Promise<void> {
   await db.prayerLists.update(id, changes)
+  snapshotToLocalStorage()
 }
 
 export async function archiveList(id: string): Promise<void> {
   await db.prayerLists.update(id, { status: 'archived' })
+  snapshotToLocalStorage()
 }
 
 export async function reactivateList(id: string): Promise<void> {
   await db.prayerLists.update(id, { status: 'active' })
+  snapshotToLocalStorage()
 }
 
 export async function deleteList(id: string): Promise<void> {
@@ -91,4 +96,5 @@ export async function deleteList(id: string): Promise<void> {
     await db.prayerLogs.where('listId').equals(id).delete()
     await db.prayerLists.delete(id)
   })
+  snapshotToLocalStorage()
 }

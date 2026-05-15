@@ -1,4 +1,5 @@
 import { db } from '../../db/db'
+import { snapshotToLocalStorage } from './local-backup'
 import type { Prayer, PrayerList, PrayerLog } from '../../db/types'
 
 type BackupData = {
@@ -39,4 +40,5 @@ export async function importData(json: string): Promise<void> {
     await db.prayers.bulkAdd(data.prayers)
     await db.prayerLogs.bulkAdd(data.prayerLogs)
   })
+  snapshotToLocalStorage()
 }

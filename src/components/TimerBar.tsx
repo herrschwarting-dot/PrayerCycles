@@ -59,12 +59,12 @@ function BarTimer({
           value={editMin}
           onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-7 text-sm font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-8 font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
         />
       ) : (
-        <span onClick={() => startEdit('min')} className={`text-sm font-mono font-semibold text-slate-100 ${clickClass}`}>{m}</span>
+        <span onClick={() => startEdit('min')} className={`text-xs font-mono font-semibold text-slate-100 ${clickClass}`}>{m}</span>
       )}
-      <span className="text-sm text-slate-500">:</span>
+      <span className="text-xs text-slate-500">:</span>
       {editingPart === 'sec' ? (
         <input
           ref={secRef}
@@ -73,10 +73,10 @@ function BarTimer({
           value={editSec}
           onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-7 text-sm font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-8 font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
         />
       ) : (
-        <span onClick={() => startEdit('sec')} className={`text-sm font-mono font-semibold text-slate-100 ${clickClass}`}>{String(s).padStart(2, '0')}</span>
+        <span onClick={() => startEdit('sec')} className={`text-xs font-mono font-semibold text-slate-100 ${clickClass}`}>{String(s).padStart(2, '0')}</span>
       )}
     </div>
   )
@@ -134,26 +134,26 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
         </button>
 
         {/* Main bar pill */}
-        <div className="relative flex flex-1 items-center gap-2 rounded-full bg-slate-800 px-4 py-1.5">
+        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 overflow-hidden">
           {/* List selector or current prayer title */}
           {showPrayerTitle && currentPrayer ? (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-sm text-slate-500 shrink-0">Praying</span>
-              <span className="text-sm font-normal text-slate-300 truncate border-2 border-slate-500 rounded px-2 -my-px leading-tight">{currentPrayer.title}</span>
+            <div className="flex items-center gap-1.5 min-w-0 shrink overflow-hidden">
+              <span className="text-xs text-slate-500 shrink-0">Praying</span>
+              <span className="text-xs font-normal text-slate-300 truncate border-2 border-slate-500 rounded px-1.5 -my-px leading-tight">{currentPrayer.title}</span>
             </div>
           ) : (
             <button
               onClick={() => { if (!running) setDropdownOpen(!dropdownOpen) }}
-              className="flex items-center gap-1 min-w-0"
+              className="flex items-center gap-1 min-w-0 shrink overflow-hidden"
             >
-              <span className={`text-sm font-semibold truncate ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
+              <span className={`text-xs font-semibold truncate ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
                 {displayName}
               </span>
               <ChevronDown size={14} className={`shrink-0 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 shrink-0">
             {/* Timers: per prayer / total */}
             <div className="flex items-center gap-1">
               <BarTimer
@@ -161,7 +161,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                 onChangeSeconds={setPrayerIncrement}
                 disabled={running}
               />
-              <span className="text-sm text-slate-600">/</span>
+              <span className="text-xs text-slate-600">/</span>
               <BarTimer
                 seconds={totalTimerValue}
                 onChangeSeconds={(s) => {

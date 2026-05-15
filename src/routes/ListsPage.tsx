@@ -96,7 +96,7 @@ export function ListsPage() {
           />
         </div>
 
-        <div className="columns-2 gap-3 sm:columns-2 md:columns-3 space-y-3">
+        <div className="columns-2 gap-3 md:columns-3 [&>*]:mb-3">
           {/* Today's Prayers virtual card */}
           {showTodayCard && (
             <TodayCard prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
