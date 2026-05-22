@@ -40,7 +40,10 @@ export function TapPrayPage() {
         if (s) {
           const key = `${s.prayer.id}-${s.listId}`
           setAutoFlipIds((prev) => ({ ...prev, [key]: true }))
-          setHiddenIds((prev) => ({ ...prev, [key]: true }))
+          // Delay hiding so flip+fade animation plays first
+          setTimeout(() => {
+            setHiddenIds((prev) => ({ ...prev, [key]: true }))
+          }, 800)
         }
       }
     }
@@ -59,15 +62,17 @@ export function TapPrayPage() {
       if (last) {
         const key = `${last.prayer.id}-${last.listId}`
         setAutoFlipIds((prev) => ({ ...prev, [key]: true }))
-        setHiddenIds((prev) => ({ ...prev, [key]: true }))
+        setTimeout(() => {
+          setHiddenIds((prev) => ({ ...prev, [key]: true }))
+        }, 800)
       }
       wasRunningRef.current = false
     }
     prevTimeLeftRef.current = timeLeft
   }, [timeLeft, running, surfacedPrayers])
 
-  const visible = surfacedPrayers.filter(
-    (s) => !hiddenIds[`${s.prayer.id}-${s.listId}`],
+  const allDone = surfacedPrayers.length > 0 && surfacedPrayers.every(
+    (s) => hiddenIds[`${s.prayer.id}-${s.listId}`],
   )
 
   const complete = useCallback(
@@ -122,20 +127,25 @@ export function TapPrayPage() {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
-      {visible.length === 0 ? (
+      {surfacedPrayers.length === 0 || allDone ? (
         <div className="flex flex-col items-center justify-center pt-20 text-center">
           <p className="text-slate-400">{t.noPrayersToShow}</p>
         </div>
       ) : (
-        <div className="mx-auto columns-2 gap-3 md:columns-3 max-w-2xl [&>*]:mb-3">
-          {visible.map((s) => (
-            <PrayerCard
-              key={`${s.prayer.id}-${s.listId}`}
-              surfaced={s}
-              onComplete={complete}
-              autoFlip={!!autoFlipIds[`${s.prayer.id}-${s.listId}`]}
-            />
-          ))}
+        <div className="mx-auto grid grid-cols-5 gap-3 max-w-4xl">
+          {surfacedPrayers.map((s) => {
+            const key = `${s.prayer.id}-${s.listId}`
+            const isHidden = !!hiddenIds[key]
+            return (
+              <div key={key} className={isHidden ? 'invisible' : ''}>
+                <PrayerCard
+                  surfaced={s}
+                  onComplete={complete}
+                  autoFlip={!!autoFlipIds[key]}
+                />
+              </div>
+            )
+          })}
         </div>
       )}
 

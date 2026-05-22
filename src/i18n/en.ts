@@ -23,6 +23,7 @@ export const en: Translations = {
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
   devMode: 'Dev Mode',
+  themes: 'Themes',
 
   praying: 'Praying',
   todaysPrayers: "Today's Prayers",

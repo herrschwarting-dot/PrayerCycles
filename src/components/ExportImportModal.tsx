@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { X, Download, Upload, Check, AlertCircle } from 'lucide-react'
 import { useT } from '../i18n'
+import { useTimer } from '../context/TimerContext'
 import { exportData, importData } from '../features/backup/backup-operations'
 
 type ExportImportModalProps = {
@@ -10,6 +11,7 @@ type ExportImportModalProps = {
 
 export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
   const { t } = useT()
+  const { refreshLists: refreshTimerLists } = useTimer()
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMsg, setStatusMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -48,6 +50,7 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
       setStatus('success')
       setStatusMsg(t.dataRestored)
       window.dispatchEvent(new Event('prayercycles:refresh'))
+      refreshTimerLists()
     } catch {
       setStatus('error')
       setStatusMsg(t.importFailed)

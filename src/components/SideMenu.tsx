@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, History, Download, Trash2, Globe, Code } from 'lucide-react'
+import { X, History, Download, Trash2, Globe, Code, Palette } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../i18n'
 import { isDevMode, setDevMode } from '../lib/devmode'
@@ -78,6 +78,14 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages }: SideMen
           >
             <Globe size={18} />
             {t.languages}
+          </button>
+
+          <button
+            onClick={() => {/* TODO: wire up themes */}}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+          >
+            <Palette size={18} />
+            {t.themes}
           </button>
 
           <div className="my-2 border-t border-slate-700" />

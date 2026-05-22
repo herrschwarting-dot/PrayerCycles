@@ -23,6 +23,7 @@ export const gsw: Translations = {
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
   devMode: 'Dev Mode',
+  themes: 'Themes',
 
   praying: 'Am Bäte',
   todaysPrayers: 'Hütigi Gebät',

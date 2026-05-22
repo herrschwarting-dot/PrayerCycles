@@ -26,6 +26,7 @@ export type Translations = {
   resetPrayerData: string
   languages: string
   devMode: string
+  themes: string
 
   // Timer bar
   praying: string

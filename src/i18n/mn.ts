@@ -23,6 +23,7 @@ export const mn: Translations = {
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
   devMode: 'Dev Mode',
+  themes: 'Загвар',
 
   praying: 'Залбирч байна',
   todaysPrayers: 'Өнөөдрийн Залбирал',

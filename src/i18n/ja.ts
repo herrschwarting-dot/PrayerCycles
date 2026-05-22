@@ -23,6 +23,7 @@ export const ja: Translations = {
   resetPrayerData: 'データをリセット',
   languages: '言語',
   devMode: 'Dev Mode',
+  themes: 'テーマ',
 
   praying: '祈り中',
   todaysPrayers: '今日の祈り',
