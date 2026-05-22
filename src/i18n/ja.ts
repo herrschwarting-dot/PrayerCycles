@@ -13,7 +13,7 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: 'タップ祈り',
+  navTapPray: '祈りビュー',
   navPrayerLists: '祈りリスト',
   navTimebox: 'タイマー',
 
@@ -22,6 +22,7 @@ export const ja: Translations = {
   deletedLists: '削除済みリスト',
   resetPrayerData: 'データをリセット',
   languages: '言語',
+  devMode: 'Dev Mode',
 
   praying: '祈り中',
   todaysPrayers: '今日の祈り',
@@ -134,10 +135,54 @@ export const ja: Translations = {
 
   deletedListsTitle: '削除済みリスト',
   noDeletedLists: '削除済みリストはありません。',
+  restore: '復元',
+  daysUntilDeletion: (days) => `${days}日後に完全削除`,
+  deletedListsDesc: '削除済みリストは50日後に完全に削除されます。',
 
   historyComingSoon: '祈りの履歴 — 近日公開',
+  prayerListView: '祈りリスト表示',
+  noHistoryYet: '祈りの履歴はまだありません。',
+  timePrayedToday: '今日の祈り時間',
+  timesPrayedToday: '今日の祈り回数',
+  formatDuration: (seconds) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  },
+
+  sortCustom: 'カスタム',
+  setDefaultOrder: 'デフォルト順に戻す',
+  resetOrderConfirm: '作成順に戻しますか？',
+
+  totalTimePrayed: '合計祈り時間',
+  formatTimePrayed: (totalSeconds) => {
+    const weeks = Math.floor(totalSeconds / 604800)
+    const days = Math.floor((totalSeconds % 604800) / 86400)
+    const h = Math.floor((totalSeconds % 86400) / 3600)
+    const m = Math.floor((totalSeconds % 3600) / 60)
+    const s = totalSeconds % 60
+    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    if (weeks > 0) return `${weeks}週間 ${days}日 ${time}`
+    if (days > 0) return `${days}日 ${time}`
+    return time
+  },
 
   timesInfinite: 'x ∞',
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
+
+  navPrayerTags: '祈りタグ',
+  prayerTags: '祈りタグ',
+  prayerTagsDesc: 'タグを作成・編集・削除して、祈りと祈りリストを整理します。',
+  noTagsYet: 'タグはまだありません。祈りやリスト作成時にタグを追加してください。',
+  tags: 'タグ',
+  tagsPlaceholder: '#タグを入力  (ダブルスペースで追加)',
+  tagUsage: (lists, prayers) => `${lists}リスト、${prayers}件の祈り`,
+  unscheduled: '未分類',
+  createTag: 'タグを作成',
+  newTagPlaceholder: '新しいタグ名...',
+  filterByTags: 'タグで絞り込み',
+  seeMore: 'もっと見る',
+  seeLess: '閉じる',
 }

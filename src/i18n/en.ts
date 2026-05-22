@@ -13,7 +13,7 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Tap Pray',
+  navTapPray: 'Prayer View',
   navPrayerLists: 'Prayer Lists',
   navTimebox: 'Timebox',
 
@@ -22,6 +22,7 @@ export const en: Translations = {
   deletedLists: 'Deleted Lists',
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
+  devMode: 'Dev Mode',
 
   praying: 'Praying',
   todaysPrayers: "Today's Prayers",
@@ -134,10 +135,54 @@ export const en: Translations = {
 
   deletedListsTitle: 'Deleted Lists',
   noDeletedLists: 'No deleted lists.',
+  restore: 'Restore',
+  daysUntilDeletion: (days) => `Permanently deleted in ${days} ${days === 1 ? 'day' : 'days'}`,
+  deletedListsDesc: 'Deleted lists are permanently removed after 50 days.',
 
   historyComingSoon: 'Prayer History — coming soon',
+  prayerListView: 'Prayer List View',
+  noHistoryYet: 'No prayer history yet.',
+  timePrayedToday: 'Time prayed today',
+  timesPrayedToday: 'Times prayed today',
+  formatDuration: (seconds) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  },
+
+  sortCustom: 'Custom',
+  setDefaultOrder: 'Set Default Order',
+  resetOrderConfirm: 'Reset to creation order?',
+
+  totalTimePrayed: 'Total Time Prayed',
+  formatTimePrayed: (totalSeconds) => {
+    const weeks = Math.floor(totalSeconds / 604800)
+    const days = Math.floor((totalSeconds % 604800) / 86400)
+    const h = Math.floor((totalSeconds % 86400) / 3600)
+    const m = Math.floor((totalSeconds % 3600) / 60)
+    const s = totalSeconds % 60
+    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    if (weeks > 0) return `${weeks} ${weeks === 1 ? 'week' : 'weeks'}, ${days} ${days === 1 ? 'day' : 'days'} ${time}`
+    if (days > 0) return `${days} ${days === 1 ? 'day' : 'days'} ${time}`
+    return time
+  },
 
   timesInfinite: 'x ∞',
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
+
+  navPrayerTags: 'Prayer Tags',
+  prayerTags: 'Prayer Tags',
+  prayerTagsDesc: 'Create, edit, or remove tags to organize your prayers and prayer lists.',
+  noTagsYet: 'No tags yet. Add tags when creating prayers or lists.',
+  tags: 'Tags',
+  tagsPlaceholder: '#type a tag  (double-space to add)',
+  tagUsage: (lists, prayers) => `${lists} ${lists === 1 ? 'list' : 'lists'}, ${prayers} ${prayers === 1 ? 'prayer' : 'prayers'}`,
+  unscheduled: 'Unscheduled',
+  createTag: 'Create Tag',
+  newTagPlaceholder: 'New tag name...',
+  filterByTags: 'Filter by tags',
+  seeMore: 'see more',
+  seeLess: 'see less',
 }

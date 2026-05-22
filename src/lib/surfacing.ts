@@ -112,6 +112,7 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
 export async function completePrayer(
   prayerId: string,
   listId: string,
+  duration = 0,
 ): Promise<void> {
   const list = await db.prayerLists.get(listId)
   if (!list) return
@@ -123,6 +124,7 @@ export async function completePrayer(
     prayerId,
     listId,
     prayedAt: now,
+    duration,
   })
 
   const prayer = await db.prayers.get(prayerId)

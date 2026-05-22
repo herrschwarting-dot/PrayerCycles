@@ -3,11 +3,31 @@ import { generateId } from '../../lib/id'
 import { snapshotToLocalStorage } from '../backup/local-backup'
 import type { Cycle, ListStatus, PrayerList } from '../../db/types'
 
+export const UNSCHEDULED_ID = '__unscheduled__'
+
+export async function ensureUnscheduledList(): Promise<void> {
+  const existing = await db.prayerLists.get(UNSCHEDULED_ID)
+  if (existing) return
+  const list: PrayerList = {
+    id: UNSCHEDULED_ID,
+    name: 'Unscheduled',
+    description: '',
+    cycle: { cadence: 'daily', persistence: { unit: 'wake', every: 1 }, lifecycle: { type: 'indefinite' } },
+    status: 'active',
+    rotationState: { queue: [], pointer: 0, lastCadenceBoundary: Date.now(), tallyOffsets: {} },
+    completionTally: 0,
+    createdAt: 0,
+    tags: [],
+  }
+  await db.prayerLists.add(list)
+}
+
 export async function createList(
   name: string,
   cycle: Cycle,
   description = '',
   initialPrayerTitles: string[] = [],
+  tags: string[] = [],
 ): Promise<string> {
   const id = generateId()
 
@@ -27,6 +47,9 @@ export async function createList(
         createdAt: now + i,
         lastPrayedAt: null,
         prayerTally: 0,
+        totalTimePrayed: 0,
+        sortOrder: {},
+        tags: [] as string[],
       }
     })
 
@@ -39,6 +62,7 @@ export async function createList(
     rotationState: { queue, pointer: 0, lastCadenceBoundary: Date.now(), tallyOffsets: {} },
     completionTally: 0,
     createdAt: Date.now(),
+    tags,
   }
 
   await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
@@ -83,18 +107,41 @@ export async function reactivateList(id: string): Promise<void> {
 }
 
 export async function deleteList(id: string): Promise<void> {
+  await db.prayerLists.update(id, { status: 'deleted', deletedAt: Date.now() })
+  snapshotToLocalStorage()
+}
+
+export async function restoreList(id: string): Promise<void> {
+  await db.prayerLists.update(id, { status: 'active', deletedAt: undefined })
+  snapshotToLocalStorage()
+}
+
+export async function getDeletedLists(): Promise<PrayerList[]> {
+  return db.prayerLists.where('status').equals('deleted').sortBy('createdAt')
+}
+
+const FIFTY_DAYS_MS = 50 * 24 * 60 * 60 * 1000
+
+export async function purgeExpiredLists(): Promise<void> {
+  const cutoff = Date.now() - FIFTY_DAYS_MS
+  const deleted = await db.prayerLists.where('status').equals('deleted').toArray()
+  const expired = deleted.filter((l) => l.deletedAt && l.deletedAt < cutoff)
+  if (expired.length === 0) return
+
   await db.transaction('rw', [db.prayerLists, db.prayers, db.prayerLogs], async () => {
-    const prayers = await db.prayers.where('listIds').equals(id).toArray()
-    for (const prayer of prayers) {
-      const remaining = prayer.listIds.filter((lid) => lid !== id)
-      if (remaining.length === 0) {
-        await db.prayers.delete(prayer.id)
-      } else {
-        await db.prayers.update(prayer.id, { listIds: remaining })
+    for (const list of expired) {
+      const prayers = await db.prayers.where('listIds').equals(list.id).toArray()
+      for (const prayer of prayers) {
+        const remaining = prayer.listIds.filter((lid) => lid !== list.id)
+        if (remaining.length === 0) {
+          await db.prayers.delete(prayer.id)
+        } else {
+          await db.prayers.update(prayer.id, { listIds: remaining })
+        }
       }
+      await db.prayerLogs.where('listId').equals(list.id).delete()
+      await db.prayerLists.delete(list.id)
     }
-    await db.prayerLogs.where('listId').equals(id).delete()
-    await db.prayerLists.delete(id)
   })
   snapshotToLocalStorage()
 }

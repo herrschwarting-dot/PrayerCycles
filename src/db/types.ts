@@ -4,7 +4,7 @@ export type Lifecycle = {
   type: 'indefinite' | 'finite'
   retireAfter?: number
 }
-export type ListStatus = 'active' | 'archived'
+export type ListStatus = 'active' | 'archived' | 'deleted'
 
 export type Persistence = {
   unit: PersistenceUnit
@@ -33,6 +33,8 @@ export type PrayerList = {
   rotationState: RotationState
   completionTally: number
   createdAt: number
+  deletedAt?: number
+  tags: string[]
 }
 
 export type Prayer = {
@@ -43,6 +45,9 @@ export type Prayer = {
   createdAt: number
   lastPrayedAt: number | null
   prayerTally: number
+  totalTimePrayed: number
+  sortOrder?: Record<string, number>
+  tags: string[]
 }
 
 export type PrayerLog = {
@@ -50,4 +55,5 @@ export type PrayerLog = {
   prayerId: string
   listId: string
   prayedAt: number
+  duration: number
 }

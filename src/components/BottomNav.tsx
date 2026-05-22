@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Square, ScrollText, Clock } from 'lucide-react'
+import { Square, ScrollText, Clock, Hash } from 'lucide-react'
 import { useT } from '../i18n'
 
 export function BottomNav() {
@@ -9,6 +9,7 @@ export function BottomNav() {
     { to: '/', icon: Square, label: t.navTapPray },
     { to: '/lists', icon: ScrollText, label: t.navPrayerLists },
     { to: '/timer', icon: Clock, label: t.navTimebox },
+    { to: '/tags', icon: Hash, label: t.navPrayerTags },
   ] as const
 
   return (

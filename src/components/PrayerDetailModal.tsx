@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Trash2 } from 'lucide-react'
 import { useT } from '../i18n'
+import { db } from '../db/db'
 import type { Prayer } from '../db/types'
 import { updatePrayer, deletePrayer } from '../features/prayers/prayer-operations'
 
@@ -16,11 +17,37 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
   const [description, setDescription] = useState(prayer.description)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
+  const [todayCount, setTodayCount] = useState(0)
+  const [todayDuration, setTodayDuration] = useState(0)
+
+  useEffect(() => {
+    // Load today's stats from prayer logs
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    const todayMs = todayStart.getTime()
+
+    db.prayerLogs
+      .where('prayerId')
+      .equals(prayer.id)
+      .toArray()
+      .then((logs) => {
+        // Only logs whose prayer started today (prayedAt - duration >= midnight)
+        const todayLogs = logs.filter((log) => {
+          const startTime = log.prayedAt - (log.duration ?? 0) * 1000
+          return startTime >= todayMs
+        })
+        setTodayCount(todayLogs.length)
+        setTodayDuration(todayLogs.reduce((sum, log) => sum + (log.duration ?? 0), 0))
+      })
+  }, [prayer.id])
+
   const startDate = new Date(prayer.createdAt)
   const tallyLabel =
     prayer.prayerTally > 0
       ? `${prayer.prayerTally} · since ${startDate.toLocaleDateString()}`
       : null
+  const totalSeconds = prayer.totalTimePrayed ?? 0
+  const timeLabel = totalSeconds > 0 ? t.formatTimePrayed(totalSeconds) : null
 
   async function handleSave() {
     const changes: Partial<Prayer> = {}
@@ -71,8 +98,19 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
           />
           <div className="text-right text-xs text-slate-500 -mt-3">{description.length}/2000</div>
 
-          {tallyLabel && (
-            <div className="text-xs text-slate-500">{tallyLabel}</div>
+          {(tallyLabel || timeLabel || todayCount > 0) && (
+            <div className="space-y-1">
+              {tallyLabel && <div className="text-xs text-slate-500">{tallyLabel}</div>}
+              {timeLabel && <div className="text-xs text-slate-500">{t.totalTimePrayed}: {timeLabel}</div>}
+              {todayCount > 0 && (
+                <div className="flex gap-4 pt-1">
+                  <div className="text-xs text-slate-500">{t.timesPrayedToday}: <span className="text-sky-300">{todayCount}</span></div>
+                  {todayDuration > 0 && (
+                    <div className="text-xs text-slate-500">{t.timePrayedToday}: <span className="text-sky-300">{t.formatDuration(todayDuration)}</span></div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           <div className="flex items-center justify-between pt-2">

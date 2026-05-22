@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
+import { TagInput } from './TagInput'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
-import { createList, getAllLists } from '../features/cycles/list-operations'
+import { createList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
+import { getAllTags } from '../features/tags/tag-operations'
 
 type AddModalProps = {
   open: boolean
@@ -19,6 +21,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const { refreshLists: refreshTimerLists } = useTimer()
   const [mode, setMode] = useState<Mode>('create-list')
   const [lists, setLists] = useState<PrayerList[]>([])
+  const [existingTags, setExistingTags] = useState<string[]>([])
 
   // Create list fields
   const [listName, setListName] = useState('')
@@ -29,15 +32,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
   const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
+  const [listTags, setListTags] = useState<string[]>([])
 
   // Add prayer fields
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [selectedLists, setSelectedLists] = useState<string[]>([])
+  const [selectedListId, setSelectedListId] = useState('')
+  const [prayerTags, setPrayerTags] = useState<string[]>([])
 
   useEffect(() => {
     if (open) {
       getAllLists().then(setLists)
+      getAllTags().then(setExistingTags)
       setMode('create-list')
     }
   }, [open])
@@ -51,21 +57,17 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setLifecycleType('indefinite')
     setRetireAfter(1)
     setInitialPrayers('')
+    setListTags([])
     setTitle('')
     setDescription('')
-    setSelectedLists([])
+    setSelectedListId('')
+    setPrayerTags([])
     setMode('create-list')
   }
 
   function handleClose() {
     reset()
     onClose()
-  }
-
-  function toggleList(id: string) {
-    setSelectedLists((prev) =>
-      prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id],
-    )
   }
 
   async function handleCreateList(e: React.FormEvent) {
@@ -77,6 +79,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery }, lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) } },
       listDescription.trim(),
       titles,
+      listTags,
     )
     refreshTimerLists()
     reset()
@@ -86,8 +89,9 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   async function handleAddPrayer(e: React.FormEvent) {
     e.preventDefault()
-    if (selectedLists.length === 0 || !title.trim()) return
-    await createPrayer(title.trim(), selectedLists, description.trim())
+    if (!title.trim()) return
+    const listId = selectedListId || UNSCHEDULED_ID
+    await createPrayer(title.trim(), [listId], description.trim(), prayerTags)
     reset()
     onAdded()
     onClose()
@@ -108,6 +112,9 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   }
 
   const visibleUnits = allUnits.filter(([unit]) => allowedUnits(cadence).includes(unit))
+
+  // Filter out Unscheduled from dropdown display (it's auto-used when no list selected)
+  const selectableLists = lists.filter((l) => l.status !== 'deleted' && l.id !== UNSCHEDULED_ID)
 
   if (!open) return null
 
@@ -167,6 +174,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
               />
               <div className="text-right text-xs text-slate-500 mt-1">{listDescription.length}/500</div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <div className="mb-2 text-sm text-slate-400">{t.tags}</div>
+              <TagInput tags={listTags} onChange={setListTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
             </div>
 
             <div>
@@ -303,10 +316,33 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
             />
             <div className="text-right text-xs text-slate-500 -mt-3">{description.length}/2000</div>
-            <ListPicker lists={lists} selected={selectedLists} onToggle={toggleList} />
+
+            {/* Tags */}
+            <div>
+              <div className="mb-2 text-sm text-slate-400">{t.tags}</div>
+              <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+            </div>
+
+            {/* List dropdown */}
+            <div>
+              <div className="mb-2 text-sm text-slate-400">{t.addToList}</div>
+              <select
+                value={selectedListId}
+                onChange={(e) => setSelectedListId(e.target.value)}
+                className="w-full rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-slate-500 appearance-none cursor-pointer"
+              >
+                <option value="">{t.unscheduled}</option>
+                {selectableLists.map((list) => (
+                  <option key={list.id} value={list.id}>
+                    {list.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button
               type="submit"
-              disabled={selectedLists.length === 0 || !title.trim()}
+              disabled={!title.trim()}
               className="w-full rounded-lg bg-slate-600 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t.addPrayer}
@@ -314,42 +350,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           </form>
         )}
 
-      </div>
-    </div>
-  )
-}
-
-function ListPicker({
-  lists,
-  selected,
-  onToggle,
-}: {
-  lists: PrayerList[]
-  selected: string[]
-  onToggle: (id: string) => void
-}) {
-  const { t } = useT()
-  if (lists.length === 0) {
-    return <p className="text-sm text-slate-500 italic">{t.noListsCreateFirst}</p>
-  }
-  return (
-    <div>
-      <div className="mb-2 text-sm text-slate-400">{t.addToList}</div>
-      <div className="flex flex-wrap gap-2">
-        {lists.map((list) => (
-          <button
-            key={list.id}
-            type="button"
-            onClick={() => onToggle(list.id)}
-            className={`rounded px-3 py-1 text-sm transition-colors ${
-              selected.includes(list.id)
-                ? 'bg-slate-500 text-white ring-2 ring-white'
-                : 'bg-slate-700 text-slate-400'
-            }`}
-          >
-            {list.name}
-          </button>
-        ))}
       </div>
     </div>
   )

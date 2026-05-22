@@ -21,17 +21,14 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
       ? t.prayedTally(prayer.prayerTally, startDate.toLocaleDateString())
       : null
 
-  // Auto-flip when timer completes this prayer
+  // Auto-flip when timer completes this prayer (visual only — counting handled by TimerContext)
   useEffect(() => {
     if (autoFlip && !hasAutoFlipped.current && !flipping) {
       hasAutoFlipped.current = true
       setFlipping(true)
       setTimeout(() => setFading(true), 400)
-      setTimeout(() => {
-        onComplete(prayer.id, surfaced.listId)
-      }, 700)
     }
-  }, [autoFlip, flipping, onComplete, prayer.id, surfaced.listId])
+  }, [autoFlip, flipping])
 
   function handleClick() {
     if (flipping) return

@@ -20,6 +20,7 @@ export function TapPrayPage() {
   const prevListRef = useRef(selectedListId)
   const prevIndexRef = useRef(currentIndex)
   const prevTimeLeftRef = useRef(timeLeft)
+  const wasRunningRef = useRef(false)
 
   // Clear completed/hidden state when the selected list changes
   useEffect(() => {
@@ -31,29 +32,36 @@ export function TapPrayPage() {
     }
   }, [selectedListId])
 
-  // Auto-flip prayer when timer advances to next prayer
+  // Auto-flip prayer when timer advances to next prayer (visual only — counting is handled by TimerContext)
   useEffect(() => {
-    // Timer advanced to next prayer
     if (running && currentIndex > prevIndexRef.current) {
       for (let i = prevIndexRef.current; i < currentIndex; i++) {
         const s = surfacedPrayers[i]
         if (s) {
           const key = `${s.prayer.id}-${s.listId}`
           setAutoFlipIds((prev) => ({ ...prev, [key]: true }))
+          setHiddenIds((prev) => ({ ...prev, [key]: true }))
         }
       }
     }
     prevIndexRef.current = currentIndex
   }, [currentIndex, running, surfacedPrayers])
 
-  // Auto-flip last prayer when timer finishes
+  // Track when timer was running so we can distinguish "timer finished" from "config changed timeLeft to 0"
   useEffect(() => {
-    if (prevTimeLeftRef.current > 0 && timeLeft === 0 && !running && surfacedPrayers.length > 0) {
+    if (running) wasRunningRef.current = true
+  }, [running])
+
+  // Auto-flip last prayer when timer finishes (visual only) — only if the timer was actually running
+  useEffect(() => {
+    if (wasRunningRef.current && prevTimeLeftRef.current > 0 && timeLeft === 0 && !running && surfacedPrayers.length > 0) {
       const last = surfacedPrayers[surfacedPrayers.length - 1]
       if (last) {
         const key = `${last.prayer.id}-${last.listId}`
         setAutoFlipIds((prev) => ({ ...prev, [key]: true }))
+        setHiddenIds((prev) => ({ ...prev, [key]: true }))
       }
+      wasRunningRef.current = false
     }
     prevTimeLeftRef.current = timeLeft
   }, [timeLeft, running, surfacedPrayers])

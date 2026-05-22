@@ -13,7 +13,7 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Товш Залбир',
+  navTapPray: 'Залбирлын Харагдац',
   navPrayerLists: 'Залбирлын Жагсаалт',
   navTimebox: 'Цагийн Хайрцаг',
 
@@ -22,6 +22,7 @@ export const mn: Translations = {
   deletedLists: 'Устгасан Жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
+  devMode: 'Dev Mode',
 
   praying: 'Залбирч байна',
   todaysPrayers: 'Өнөөдрийн Залбирал',
@@ -134,10 +135,54 @@ export const mn: Translations = {
 
   deletedListsTitle: 'Устгасан Жагсаалт',
   noDeletedLists: 'Устгасан жагсаалт байхгүй.',
+  restore: 'Сэргээх',
+  daysUntilDeletion: (days) => `${days} өдрийн дараа бүрмөсөн устгагдана`,
+  deletedListsDesc: 'Устгасан жагсаалт 50 өдрийн дараа бүрмөсөн устгагдана.',
 
   historyComingSoon: 'Залбирлын түүх — удахгүй',
+  prayerListView: 'Залбирлын жагсаалт харах',
+  noHistoryYet: 'Залбирлын түүх байхгүй байна.',
+  timePrayedToday: 'Өнөөдөр залбирсан хугацаа',
+  timesPrayedToday: 'Өнөөдөр залбирсан тоо',
+  formatDuration: (seconds) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  },
+
+  sortCustom: 'Өөрчлөн',
+  setDefaultOrder: 'Анхны дараалал тогтоох',
+  resetOrderConfirm: 'Үүсгэсэн дарааллаар шинэчлэх үү?',
+
+  totalTimePrayed: 'Нийт залбирсан хугацаа',
+  formatTimePrayed: (totalSeconds) => {
+    const weeks = Math.floor(totalSeconds / 604800)
+    const days = Math.floor((totalSeconds % 604800) / 86400)
+    const h = Math.floor((totalSeconds % 86400) / 3600)
+    const m = Math.floor((totalSeconds % 3600) / 60)
+    const s = totalSeconds % 60
+    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    if (weeks > 0) return `${weeks} долоо хоног, ${days} өдөр ${time}`
+    if (days > 0) return `${days} өдөр ${time}`
+    return time
+  },
 
   timesInfinite: 'x ∞',
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
+
+  navPrayerTags: 'Залбирлын Шошго',
+  prayerTags: 'Залбирлын Шошго',
+  prayerTagsDesc: 'Залбирал болон залбирлын жагсаалтыг зохион байгуулахын тулд шошго үүсгэх, засах, устгах.',
+  noTagsYet: 'Шошго байхгүй байна. Залбирал эсвэл жагсаалт үүсгэх үед шошго нэмнэ үү.',
+  tags: 'Шошго',
+  tagsPlaceholder: '#шошго бичих  (давхар зай дарж нэмэх)',
+  tagUsage: (lists, prayers) => `${lists} жагсаалт, ${prayers} залбирал`,
+  unscheduled: 'Хуваарьгүй',
+  createTag: 'Шошго үүсгэх',
+  newTagPlaceholder: 'Шинэ шошгоны нэр...',
+  filterByTags: 'Шошгоор шүүх',
+  seeMore: 'цааш үзэх',
+  seeLess: 'хураах',
 }

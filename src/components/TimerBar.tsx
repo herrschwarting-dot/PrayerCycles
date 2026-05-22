@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Menu, ChevronDown, Play, Pause, RotateCcw } from 'lucide-react'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
+import { UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { useT } from '../i18n'
 
 function BarTimer({
@@ -114,7 +115,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
-  const displayName = isToday ? t.todaysPrayers : (selectedList?.name ?? t.selectAList)
+  const displayName = isToday ? t.todaysPrayers : (selectedList ? (selectedList.id === UNSCHEDULED_ID ? t.unscheduled : selectedList.name) : t.selectAList)
   const hasSelection = isToday || !!selectedList
 
   const midSession = timeLeft > 0 && timeLeft < totalTime
@@ -214,7 +215,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                       selectedListId === list.id ? 'text-sky-300' : 'text-slate-200'
                     }`}
                   >
-                    {list.name}
+                    {list.id === UNSCHEDULED_ID ? t.unscheduled : list.name}
                   </button>
                 ))}
                 {lists.length === 0 && (

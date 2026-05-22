@@ -9,6 +9,7 @@ import { ExportImportModal } from './components/ExportImportModal'
 import { LanguageModal } from './components/LanguageModal'
 import { TimerProvider } from './context/TimerContext'
 import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
+import { purgeExpiredLists, ensureUnscheduledList } from './features/cycles/list-operations'
 import { I18nContext, translations, getSavedLocale, saveLocale, type Locale } from './i18n'
 import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
@@ -16,6 +17,7 @@ import { ListDetailPage } from './routes/ListDetailPage'
 import { TimerPage } from './routes/TimerPage'
 import { HistoryPage } from './routes/HistoryPage'
 import { TrashPage } from './routes/TrashPage'
+import { TagsPage } from './routes/TagsPage'
 
 function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
@@ -29,6 +31,8 @@ function AppContent() {
         window.dispatchEvent(new Event('prayercycles:refresh'))
       }
     })
+    purgeExpiredLists()
+    ensureUnscheduledList()
   }, [])
 
   return (
@@ -47,6 +51,7 @@ function AppContent() {
           <Route path="/lists/:id" element={<ListDetailPage />} />
           <Route path="/timer" element={<TimerPage />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/tags" element={<TagsPage />} />
           <Route path="/trash" element={<TrashPage />} />
         </Routes>
 

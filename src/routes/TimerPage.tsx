@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
 import { useT } from '../i18n'
+import { isDevMode } from '../lib/devmode'
 
 function EditableTime({
   seconds,
@@ -124,6 +125,7 @@ export function TimerPage() {
 
   const timeboxRef = useRef<HTMLDivElement>(null)
   const prevTimeLeftRef = useRef(timeLeft)
+  const wasRunningRef = useRef(false)
 
   // Refresh lists when page is visited
   useEffect(() => { refreshLists() }, [refreshLists])
@@ -144,11 +146,41 @@ export function TimerPage() {
   }, [])
 
   useEffect(() => {
-    if (prevTimeLeftRef.current > 0 && timeLeft === 0 && !running && prayers.length > 0) {
+    if (running) wasRunningRef.current = true
+  }, [running])
+
+  useEffect(() => {
+    if (wasRunningRef.current && prevTimeLeftRef.current > 0 && timeLeft === 0 && !running && prayers.length > 0) {
       fireConfetti()
+      wasRunningRef.current = false
     }
     prevTimeLeftRef.current = timeLeft
   }, [timeLeft, running, prayers.length, fireConfetti])
+
+  // Dev Mode millisecond counter
+  const devMode = isDevMode()
+  const [millis, setMillis] = useState(0)
+  const lastTickRef = useRef(performance.now())
+
+  useEffect(() => {
+    if (!devMode || !running) { setMillis(0); return }
+    lastTickRef.current = performance.now()
+    let rafId: number
+    function tick() {
+      const now = performance.now()
+      const elapsed = now - lastTickRef.current
+      // Reset every 1000ms (syncs with the 1s timer tick)
+      setMillis(Math.floor(elapsed % 1000))
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [devMode, running])
+
+  // Reset the millis base when timeLeft changes (a new second ticked)
+  useEffect(() => {
+    if (running) lastTickRef.current = performance.now()
+  }, [timeLeft, running])
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
@@ -290,6 +322,15 @@ export function TimerPage() {
                   />
                 </div>
               </div>
+
+              {/* Dev Mode milliseconds */}
+              {devMode && (
+                <div className="text-center -mt-1">
+                  <span className="text-lg font-mono text-sky-300/70">
+                    .{String(millis).padStart(3, '0')}
+                  </span>
+                </div>
+              )}
 
               {/* Controls */}
               <div className="flex gap-2">

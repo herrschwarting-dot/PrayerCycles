@@ -7,6 +7,7 @@ export async function createPrayer(
   title: string,
   listIds: string[],
   description = '',
+  tags: string[] = [],
 ): Promise<string> {
   const id = generateId()
   const prayer: Prayer = {
@@ -17,6 +18,9 @@ export async function createPrayer(
     createdAt: Date.now(),
     lastPrayedAt: null,
     prayerTally: 0,
+    totalTimePrayed: 0,
+    sortOrder: {},
+    tags,
   }
   await db.prayers.add(prayer)
 
@@ -81,6 +85,9 @@ export async function bulkCreatePrayers(
         createdAt: Date.now() + i,
         lastPrayedAt: null,
         prayerTally: 0,
+        totalTimePrayed: 0,
+        sortOrder: {},
+        tags: [],
       })
       newQueue.push(id)
       if (ghostOffset > 0) offsets[id] = ghostOffset
@@ -100,7 +107,17 @@ export async function getPrayer(id: string): Promise<Prayer | undefined> {
 
 export async function getPrayersByList(listId: string): Promise<Prayer[]> {
   const prayers = await db.prayers.where('listIds').equals(listId).toArray()
-  return prayers.sort((a, b) => a.createdAt - b.createdAt)
+  return prayers.sort((a, b) => {
+    const aOrder = a.sortOrder?.[listId]
+    const bOrder = b.sortOrder?.[listId]
+    // If both have custom sort order, use it
+    if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder
+    // If only one has sort order, it comes first
+    if (aOrder !== undefined) return -1
+    if (bOrder !== undefined) return 1
+    // Fall back to creation order
+    return a.createdAt - b.createdAt
+  })
 }
 
 export async function getAllPrayers(): Promise<Prayer[]> {
@@ -147,6 +164,7 @@ export async function recordPrayed(prayerId: string, listId: string): Promise<vo
       prayerId,
       listId,
       prayedAt: now,
+      duration: 0,
     })
     const prayer = await db.prayers.get(prayerId)
     if (prayer) {
@@ -156,6 +174,41 @@ export async function recordPrayed(prayerId: string, listId: string): Promise<vo
       })
     }
   })
+  snapshotToLocalStorage()
+}
+
+export async function reorderPrayers(listId: string, orderedIds: string[]): Promise<void> {
+  await db.transaction('rw', db.prayers, async () => {
+    for (let i = 0; i < orderedIds.length; i++) {
+      const prayer = await db.prayers.get(orderedIds[i])
+      if (prayer) {
+        const sortOrder = { ...(prayer.sortOrder ?? {}), [listId]: i }
+        await db.prayers.update(orderedIds[i], { sortOrder })
+      }
+    }
+  })
+  snapshotToLocalStorage()
+}
+
+export async function resetPrayerOrder(listId: string): Promise<void> {
+  const prayers = await db.prayers.where('listIds').equals(listId).toArray()
+  await db.transaction('rw', db.prayers, async () => {
+    for (const prayer of prayers) {
+      const sortOrder = { ...(prayer.sortOrder ?? {}) }
+      delete sortOrder[listId]
+      await db.prayers.update(prayer.id, { sortOrder })
+    }
+  })
+  snapshotToLocalStorage()
+}
+
+export async function addTimePrayed(prayerId: string, seconds: number): Promise<void> {
+  const prayer = await db.prayers.get(prayerId)
+  if (prayer) {
+    await db.prayers.update(prayerId, {
+      totalTimePrayed: (prayer.totalTimePrayed ?? 0) + seconds,
+    })
+  }
   snapshotToLocalStorage()
 }
 

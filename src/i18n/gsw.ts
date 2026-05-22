@@ -13,7 +13,7 @@ export const gsw: Translations = {
   no: 'Nei',
   loading: 'Am Lade...',
 
-  navTapPray: 'Tippe Bäte',
+  navTapPray: 'Gebetsaasicht',
   navPrayerLists: 'Gebetslischte',
   navTimebox: 'Ziitbox',
 
@@ -22,6 +22,7 @@ export const gsw: Translations = {
   deletedLists: 'Glöschti Lischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
+  devMode: 'Dev Mode',
 
   praying: 'Am Bäte',
   todaysPrayers: 'Hütigi Gebät',
@@ -134,10 +135,54 @@ export const gsw: Translations = {
 
   deletedListsTitle: 'Glöschti Lischte',
   noDeletedLists: 'Kei glöschti Lischte.',
+  restore: 'Wiederherstelle',
+  daysUntilDeletion: (days) => `Wird in ${days} ${days === 1 ? 'Tag' : 'Täg'} ändgültig glöscht`,
+  deletedListsDesc: 'Glöschti Lischte wärde nach 50 Täg ändgültig glöscht.',
 
   historyComingSoon: 'Gebetsgschicht — chunnt bald',
+  prayerListView: 'Gebetslischte-Aasicht',
+  noHistoryYet: 'No kei Gebetsgschicht.',
+  timePrayedToday: 'Hüt bäteti Zit',
+  timesPrayedToday: 'Hüt bäteti Male',
+  formatDuration: (seconds) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  },
+
+  sortCustom: 'Eigeni',
+  setDefaultOrder: 'Standard-Reihefolg setze',
+  resetOrderConfirm: 'Uf Erstelligsreihefolg zruggsetze?',
+
+  totalTimePrayed: 'Gsamti Gebetszit',
+  formatTimePrayed: (totalSeconds) => {
+    const weeks = Math.floor(totalSeconds / 604800)
+    const days = Math.floor((totalSeconds % 604800) / 86400)
+    const h = Math.floor((totalSeconds % 86400) / 3600)
+    const m = Math.floor((totalSeconds % 3600) / 60)
+    const s = totalSeconds % 60
+    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    if (weeks > 0) return `${weeks} ${weeks === 1 ? 'Wuche' : 'Wuche'}, ${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
+    if (days > 0) return `${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
+    return time
+  },
 
   timesInfinite: 'x ∞',
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
+
+  navPrayerTags: 'Gebets-Tags',
+  prayerTags: 'Gebets-Tags',
+  prayerTagsDesc: 'Tags erstelle, bearbeite oder lösche zum Organisiere vo dine Gebät und Gebetslischte.',
+  noTagsYet: 'No kei Tags. Füeg Tags bi zum Gebät oder Lischte erstelle dezue.',
+  tags: 'Tags',
+  tagsPlaceholder: '#Tag iitippe  (Doppel-Space zum dezuefüege)',
+  tagUsage: (lists, prayers) => `${lists} ${lists === 1 ? 'Lischte' : 'Lischte'}, ${prayers} ${prayers === 1 ? 'Gebet' : 'Gebät'}`,
+  unscheduled: 'Ohni Lischte',
+  createTag: 'Tag erstelle',
+  newTagPlaceholder: 'Neue Tag-Name...',
+  filterByTags: 'Nach Tags filtere',
+  seeMore: 'meh aazeige',
+  seeLess: 'weniger aazeige',
 }

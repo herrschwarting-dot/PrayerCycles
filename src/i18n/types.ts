@@ -25,6 +25,7 @@ export type Translations = {
   deletedLists: string
   resetPrayerData: string
   languages: string
+  devMode: string
 
   // Timer bar
   praying: string
@@ -147,12 +148,44 @@ export type Translations = {
   // Trash page
   deletedListsTitle: string
   noDeletedLists: string
+  restore: string
+  daysUntilDeletion: (days: number) => string
+  deletedListsDesc: string
 
   // History page
   historyComingSoon: string
+  prayerListView: string
+  noHistoryYet: string
+  timePrayedToday: string
+  timesPrayedToday: string
+  formatDuration: (seconds: number) => string
+
+  // List detail — reorder
+  sortCustom: string
+  setDefaultOrder: string
+  resetOrderConfirm: string
+
+  // Total time prayed
+  totalTimePrayed: string
+  formatTimePrayed: (totalSeconds: number) => string
 
   // Lifecycle
   timesInfinite: string
   timesCount: (count: number) => string
   everyUnit: (every: number, singular: string, plural: string) => string
+
+  // Tags
+  navPrayerTags: string
+  prayerTags: string
+  prayerTagsDesc: string
+  noTagsYet: string
+  tags: string
+  tagsPlaceholder: string
+  tagUsage: (lists: number, prayers: number) => string
+  unscheduled: string
+  createTag: string
+  newTagPlaceholder: string
+  filterByTags: string
+  seeMore: string
+  seeLess: string
 }
