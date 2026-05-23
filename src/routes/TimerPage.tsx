@@ -48,7 +48,7 @@ function EditableTime({
     if (e.key === 'Escape') setEditingPart(null)
   }
 
-  const clickClass = disabled ? '' : 'cursor-pointer hover:text-sky-200 transition-colors'
+  const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
 
   return (
     <div className="flex items-center gap-0.5 justify-center" onBlur={(e) => {
@@ -62,18 +62,18 @@ function EditableTime({
           value={editMin}
           onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-14 text-2xl font-mono font-bold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-14 text-2xl font-mono font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('min')}
-          className={`text-3xl font-mono font-bold text-slate-100 tracking-wider ${clickClass}`}
+          className={`text-3xl font-mono font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit minutes'}
         >
           {m}
         </span>
       )}
-      <span className="text-3xl font-mono font-bold text-slate-500">:</span>
+      <span className="text-3xl font-mono font-bold text-text-muted">:</span>
       {editingPart === 'sec' ? (
         <input
           ref={secRef}
@@ -82,12 +82,12 @@ function EditableTime({
           value={editSec}
           onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-14 text-2xl font-mono font-bold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-14 text-2xl font-mono font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('sec')}
-          className={`text-3xl font-mono font-bold text-slate-100 tracking-wider ${clickClass}`}
+          className={`text-3xl font-mono font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit seconds'}
         >
           {String(s).padStart(2, '0')}
@@ -206,16 +206,16 @@ export function TimerPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => { if (!running) setLocalDropdown(!localDropdown) }}
-              className={`flex-1 flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3 text-left transition-colors border border-slate-700 hover:border-slate-600 ${running ? 'opacity-50' : ''}`}
+              className={`flex-1 flex items-center justify-between rounded-lg bg-card px-4 py-3 text-left transition-colors border border-border hover:border-border-light ${running ? 'opacity-50' : ''}`}
             >
-              <span className={`text-lg font-semibold ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
+              <span className={`text-lg font-semibold ${hasSelection ? 'text-text' : 'text-text-muted'}`}>
                 {displayName}
               </span>
-              <ChevronDown size={18} className={`text-slate-400 transition-transform ${localDropdown ? 'rotate-180' : ''}`} />
+              <ChevronDown size={18} className={`text-text-tertiary transition-transform ${localDropdown ? 'rotate-180' : ''}`} />
             </button>
             <button
               onClick={pickRandom}
-              className={`rounded-lg bg-slate-800 p-3 text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors border border-slate-700 ${running ? 'opacity-50' : ''}`}
+              className={`rounded-lg bg-card p-3 text-text-tertiary hover:text-text-secondary hover:bg-input transition-colors border border-border ${running ? 'opacity-50' : ''}`}
               title={t.pickRandomList}
             >
               <Dices size={20} />
@@ -224,31 +224,31 @@ export function TimerPage() {
           {localDropdown && !running && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
-              <div className="absolute z-50 mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 shadow-lg overflow-hidden">
+              <div className="absolute z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-hidden">
                 <button
                   onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
-                    isToday ? 'text-sky-300' : 'text-slate-200'
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
+                    isToday ? 'text-accent-text' : 'text-text-secondary'
                   }`}
                 >
                   {t.todaysPrayers}
                 </button>
                 {lists.length > 0 && (
-                  <div className="border-t border-slate-700" />
+                  <div className="border-t border-border" />
                 )}
                 {lists.map((list) => (
                   <button
                     key={list.id}
                     onClick={() => { setSelectedListId(list.id); setLocalDropdown(false) }}
-                    className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
-                      selectedListId === list.id ? 'text-sky-300' : 'text-slate-200'
+                    className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
+                      selectedListId === list.id ? 'text-accent-text' : 'text-text-secondary'
                     }`}
                   >
                     {list.name}
                   </button>
                 ))}
                 {lists.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-slate-500 italic">{t.noOtherLists}</div>
+                  <div className="px-4 py-3 text-sm text-text-muted italic">{t.noOtherLists}</div>
                 )}
               </div>
             </>
@@ -256,24 +256,24 @@ export function TimerPage() {
         </div>
 
         {/* Timebox */}
-        <div ref={timeboxRef} className="relative z-10 rounded-lg bg-slate-800 border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)] overflow-hidden">
+        <div ref={timeboxRef} className="relative z-10 rounded-lg bg-card border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)] overflow-hidden">
           <div className="flex min-h-[240px]">
 
             {/* Left: current prayer with description */}
-            <div className="flex-1 p-4 overflow-y-auto border-r border-slate-700 break-words">
+            <div className="flex-1 p-4 overflow-y-auto border-r border-border break-words">
               {currentPrayer ? (
                 <div>
                   {running && (
-                    <div className="text-xs text-sky-300 uppercase tracking-wide mb-1">{t.nowPraying}</div>
+                    <div className="text-xs text-accent-text uppercase tracking-wide mb-1">{t.nowPraying}</div>
                   )}
-                  <h3 className="text-lg font-semibold text-slate-100">{currentPrayer.title}</h3>
+                  <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
                   {currentPrayer.description && (
-                    <p className="mt-2 text-sm text-slate-300 whitespace-pre-wrap">{currentPrayer.description}</p>
+                    <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">{currentPrayer.description}</p>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  <div className="text-sm text-slate-500 italic text-center">
+                  <div className="text-sm text-text-muted italic text-center">
                     {selectedListId ? t.noPrayersInThisList : t.selectAPrayerList}
                   </div>
                 </div>
@@ -290,8 +290,8 @@ export function TimerPage() {
                 className={`absolute top-3 right-3 flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
                 title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
               >
-                <span className="text-[9px] text-slate-500 whitespace-nowrap">{t.totalTimebox}</span>
-                <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-green-500' : 'bg-slate-600'}`}>
+                <span className="text-[9px] text-text-muted whitespace-nowrap">{t.totalTimebox}</span>
+                <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input'}`}>
                   <div className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[13px]' : 'translate-x-[2px]'}`} />
                 </div>
               </button>
@@ -299,16 +299,16 @@ export function TimerPage() {
               {/* Timers — same size, separated by / */}
               <div className="flex items-end gap-1">
                 <div className="text-center" title="Time per prayer — click to edit">
-                  <div className="text-[10px] text-slate-500 mb-1">{t.timePerPrayer}</div>
+                  <div className="text-[10px] text-text-muted mb-1">{t.timePerPrayer}</div>
                   <EditableTime
                     seconds={bigTimerValue}
                     onChangeSeconds={setPrayerIncrement}
                     disabled={running}
                   />
                 </div>
-                <span className="text-2xl font-light text-slate-600 pb-[1px]">/</span>
+                <span className="text-2xl font-light text-border-light pb-[1px]">/</span>
                 <div className="text-center" title="Total timebox — click to edit">
-                  <div className="text-[10px] text-slate-500 mb-1">{t.totalTimebox}</div>
+                  <div className="text-[10px] text-text-muted mb-1">{t.totalTimebox}</div>
                   <EditableTime
                     seconds={totalTimerValue}
                     onChangeSeconds={(s) => {
@@ -326,7 +326,7 @@ export function TimerPage() {
               {/* Dev Mode milliseconds */}
               {devMode && (
                 <div className="text-center -mt-1">
-                  <span className="text-lg font-mono text-sky-300/70">
+                  <span className="text-lg font-mono text-accent-text/70">
                     .{String(millis).padStart(3, '0')}
                   </span>
                 </div>
@@ -338,7 +338,7 @@ export function TimerPage() {
                   <button
                     onClick={handleStart}
                     disabled={!selectedListId || prayers.length === 0}
-                    className="rounded-full bg-slate-700 p-2.5 text-slate-100 hover:bg-slate-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="rounded-full bg-input p-2.5 text-text hover:bg-input-hover transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     aria-label={t.startTimer}
                   >
                     <Play size={20} />
@@ -346,7 +346,7 @@ export function TimerPage() {
                 ) : (
                   <button
                     onClick={handlePause}
-                    className="rounded-full bg-slate-700 p-2.5 text-slate-100 hover:bg-slate-600 transition-colors"
+                    className="rounded-full bg-input p-2.5 text-text hover:bg-input-hover transition-colors"
                     aria-label={t.pauseTimer}
                   >
                     <Pause size={20} />
@@ -354,7 +354,7 @@ export function TimerPage() {
                 )}
                 <button
                   onClick={handleReset}
-                  className="rounded-full bg-slate-700 p-2.5 text-slate-400 hover:bg-slate-600 transition-colors"
+                  className="rounded-full bg-input p-2.5 text-text-tertiary hover:bg-input-hover transition-colors"
                   aria-label={t.resetTimer}
                 >
                   <RotateCcw size={20} />
@@ -367,18 +367,18 @@ export function TimerPage() {
         {/* Up next — below the timebox */}
         {upcomingPrayers.length > 0 && (
           <div className="space-y-1">
-            <div className="text-xs text-slate-500 uppercase tracking-wide px-1">{t.upNext}</div>
+            <div className="text-xs text-text-muted uppercase tracking-wide px-1">{t.upNext}</div>
             {upcomingPrayers.slice(0, 6).map((prayer, i) => (
               <div
                 key={prayer.id}
                 className="px-1"
                 style={{ opacity: 1 - i * 0.15 }}
               >
-                <div className="text-sm text-slate-300">{prayer.title}</div>
+                <div className="text-sm text-text-secondary">{prayer.title}</div>
               </div>
             ))}
             {upcomingPrayers.length > 6 && (
-              <div className="px-1 text-xs text-slate-600">
+              <div className="px-1 text-xs text-border-light">
                 {t.moreItems(upcomingPrayers.length - 6)}
               </div>
             )}
@@ -386,7 +386,7 @@ export function TimerPage() {
         )}
 
         {selectedListId && prayers.length === 0 && (
-          <p className="text-sm text-slate-500 italic pt-2">{t.noPrayersInListYet}</p>
+          <p className="text-sm text-text-muted italic pt-2">{t.noPrayersInListYet}</p>
         )}
       </div>
     </div>

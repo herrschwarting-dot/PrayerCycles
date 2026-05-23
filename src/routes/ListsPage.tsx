@@ -70,13 +70,12 @@ export function ListsPage() {
   useEffect(() => {
     const el = tagsRef.current
     if (el) {
-      // 5.25rem = 84px is the max-h when collapsed (3 lines)
       setTagsOverflow(el.scrollHeight > 84)
     }
   }, [allTags])
 
   if (loading) {
-    return <div className="flex h-40 items-center justify-center text-slate-500">{t.loading}</div>
+    return <div className="flex h-40 items-center justify-center text-text-muted">{t.loading}</div>
   }
 
   const lower = searchQuery.toLowerCase()
@@ -127,16 +126,16 @@ export function ListsPage() {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-5xl">
         {/* Inline search bar */}
-        <div className="mb-2 flex items-center gap-2 rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
-          <Search size={16} className="text-slate-500 shrink-0" />
+        <div className="mb-2 mx-auto flex items-center gap-2 rounded-lg bg-card border border-border px-3 py-2 max-w-2xl">
+          <Search size={16} className="text-text-muted shrink-0" />
           <input
             type="text"
             placeholder={t.searchPrayers}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none"
+            className="flex-1 bg-transparent text-sm text-text placeholder-text-muted outline-none"
           />
         </div>
 
@@ -156,8 +155,8 @@ export function ListsPage() {
                     onClick={() => toggleTag(tag)}
                     className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
                       selectedTags.has(tag)
-                        ? 'bg-sky-500 text-white'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-300'
+                        ? 'bg-accent text-white'
+                        : 'bg-card text-text-tertiary hover:bg-input hover:text-text-secondary'
                     }`}
                   >
                     #{tag}
@@ -165,14 +164,14 @@ export function ListsPage() {
                 ))}
               </div>
               {!tagsExpanded && tagsOverflow && (
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-7 bg-gradient-to-t from-slate-900 to-transparent" />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-7 bg-gradient-to-t from-base to-transparent" />
               )}
             </div>
             {tagsOverflow && (
               <div className="flex justify-end mt-0.5">
                 <button
                   onClick={() => setTagsExpanded(!tagsExpanded)}
-                  className="flex items-center gap-0.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+                  className="flex items-center gap-0.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
                 >
                   {tagsExpanded ? t.seeLess : t.seeMore}
                   {tagsExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -182,14 +181,14 @@ export function ListsPage() {
           </div>
         )}
 
-        <div className="columns-2 gap-3 md:columns-3 [&>*]:mb-3">
+        <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-3 [&>*]:mb-3">
           {/* Today's Prayers virtual card */}
           {showTodayCard && (
             <TodayCard prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
           )}
 
           {active.length === 0 && archived.length === 0 && !showTodayCard && (
-            <p className="pt-20 text-center text-slate-400">{t.noListsYet}</p>
+            <p className="pt-20 text-center text-text-tertiary">{t.noListsYet}</p>
           )}
 
           {active.map(({ list, prayers }) => (
@@ -198,7 +197,7 @@ export function ListsPage() {
 
           {archived.length > 0 && (
             <>
-              <div className="pt-4 text-xs font-medium uppercase tracking-wide text-slate-500 break-inside-avoid">
+              <div className="pt-4 text-xs font-medium uppercase tracking-wide text-text-muted break-inside-avoid">
                 {t.deactivated}
               </div>
               {archived.map(({ list, prayers }) => (
@@ -221,31 +220,31 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
 
   return (
     <div
-      className="rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-slate-800 hover:bg-slate-750 transition border-2 border-emerald-400/80 shadow-[0_0_14px_rgba(52,211,153,0.35)]"
+      className="rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition border-2 border-success-border shadow-[0_0_14px_var(--color-success-glow)]"
       onClick={() => { onSelect(); navigate('/') }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/') } }}
     >
-      <p className="text-xs text-emerald-400 leading-tight">{t.surfacedLabel}</p>
-      <h3 className="text-lg font-semibold text-slate-100 -mt-0.5">{t.todaysPrayers}</h3>
-      <p className="text-sm text-slate-300 mt-1">{t.todaysPrayersDesc}</p>
+      <p className="text-xs text-success-alt leading-tight">{t.surfacedLabel}</p>
+      <h3 className="text-lg font-semibold text-text -mt-0.5">{t.todaysPrayers}</h3>
+      <p className="text-sm text-text-secondary mt-1">{t.todaysPrayersDesc}</p>
 
       <div className="mt-2 space-y-1">
         {visible.map((s) => (
-          <div key={`${s.prayer.id}-${s.listId}`} className="text-sm text-slate-200">
+          <div key={`${s.prayer.id}-${s.listId}`} className="text-sm text-text-secondary">
             <Highlight text={s.prayer.title} query={query} />
           </div>
         ))}
         {overflow > 0 && (
-          <div className="text-xs text-slate-400">{t.expand}</div>
+          <div className="text-xs text-text-tertiary">{t.expand}</div>
         )}
         {prayers.length === 0 && (
-          <div className="text-xs text-slate-400 italic">{t.noPrayersSurfaced}</div>
+          <div className="text-xs text-text-tertiary italic">{t.noPrayersSurfaced}</div>
         )}
       </div>
 
-      <div className="mt-3 text-xs text-emerald-300 text-right">
+      <div className="mt-3 text-xs text-success-text text-right">
         {t.prayerCount(prayers.length)}
       </div>
     </div>
@@ -277,41 +276,41 @@ function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[
 
   const isUnscheduled = list.id === UNSCHEDULED_ID
   const borderClass = isUnscheduled
-    ? 'border-2 border-slate-500/60 shadow-[0_0_14px_rgba(148,163,184,0.2)]'
-    : 'border-2 border-sky-300/80 shadow-[0_0_14px_rgba(125,211,252,0.35)]'
+    ? 'border-2 border-text-muted/60 shadow-[0_0_14px_rgba(148,163,184,0.2)]'
+    : 'border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)]'
 
   return (
     <div
-      className={`rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-slate-800 hover:bg-slate-750 transition ${borderClass} ${isArchived ? 'opacity-50' : ''}`}
+      className={`rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition ${borderClass} ${isArchived ? 'opacity-50' : ''}`}
       onClick={() => navigate(`/lists/${list.id}`)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/lists/${list.id}`) }}
     >
       {!isUnscheduled && (
-        <p className="text-xs text-slate-400 leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
+        <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
       )}
-      <h3 className="text-lg font-semibold text-slate-100 -mt-0.5"><Highlight text={displayName} query={query} /></h3>
+      <h3 className="text-lg font-semibold text-text -mt-0.5"><Highlight text={displayName} query={query} /></h3>
       {list.description && (
         <div className="relative mt-1">
-          <p ref={descRef} className="text-sm text-slate-300 line-clamp-5"><Highlight text={list.description} query={query} /></p>
+          <p ref={descRef} className="text-sm text-text-secondary line-clamp-5"><Highlight text={list.description} query={query} /></p>
           {isClamped && (
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-slate-800 to-transparent" />
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-card to-transparent" />
           )}
         </div>
       )}
 
       <div className="mt-2 space-y-1">
         {visible.map((prayer) => (
-          <div key={prayer.id} className="text-sm text-slate-200">
+          <div key={prayer.id} className="text-sm text-text-secondary">
             <Highlight text={prayer.title} query={query} />
           </div>
         ))}
         {overflow > 0 && (
-          <div className="text-xs text-slate-400">{t.expand}</div>
+          <div className="text-xs text-text-tertiary">{t.expand}</div>
         )}
         {prayers.length === 0 && (
-          <div className="text-xs text-slate-400 italic">{t.noPrayersYet}</div>
+          <div className="text-xs text-text-tertiary italic">{t.noPrayersYet}</div>
         )}
       </div>
 
@@ -319,14 +318,14 @@ function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[
       {(list.tags ?? []).length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
           {list.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] text-slate-400">
+            <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-[10px] text-text-tertiary">
               #{tag}
             </span>
           ))}
         </div>
       )}
 
-      <div className="mt-3 text-xs text-sky-300 text-right">
+      <div className="mt-3 text-xs text-accent-text text-right">
         {list.completionTally}
       </div>
     </div>

@@ -174,34 +174,34 @@ export function HistoryPage() {
       <div className="mx-auto max-w-lg">
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 flex items-center gap-1 text-sm text-slate-400 hover:text-slate-300"
+          className="mb-4 flex items-center gap-1 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft size={16} />
           {t.back}
         </button>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-slate-100">{t.prayerHistory}</h2>
+          <h2 className="text-xl font-semibold text-text">{t.prayerHistory}</h2>
 
           <button
             onClick={() => setListViewOnly(!listViewOnly)}
             className="flex items-center gap-2"
           >
-            <span className="text-[10px] text-slate-500 whitespace-nowrap">{t.prayerListView}</span>
-            <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${listViewOnly ? 'bg-green-500' : 'bg-slate-600'}`}>
+            <span className="text-[10px] text-text-muted whitespace-nowrap">{t.prayerListView}</span>
+            <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${listViewOnly ? 'bg-toggle' : 'bg-input'}`}>
               <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${listViewOnly ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
             </div>
           </button>
         </div>
 
         {filteredDays.length === 0 ? (
-          <p className="text-sm text-slate-500 italic pt-4">{t.noHistoryYet}</p>
+          <p className="text-sm text-text-muted italic pt-4">{t.noHistoryYet}</p>
         ) : (
           <div className="space-y-4">
             {filteredDays.map((day) => (
               <div key={day.dateKey}>
-                <div className="border-b border-slate-700 pb-1 mb-2">
-                  <span className="text-sm font-semibold text-slate-300">{day.label}</span>
+                <div className="border-b border-border pb-1 mb-2">
+                  <span className="text-sm font-semibold text-text-secondary">{day.label}</span>
                 </div>
                 <div className="space-y-0.5">
                   {listViewOnly ? (
@@ -211,9 +211,9 @@ export function HistoryPage() {
                         key={entry.list.id}
                         className="w-full flex items-center rounded-lg px-3 py-2 text-sm"
                       >
-                        <span className="flex-1 text-left text-slate-200 truncate">{entry.list.name}</span>
-                        <span className="text-slate-500 text-xs w-20 text-right shrink-0">{t.formatDuration(entry.totalDuration)}</span>
-                        <span className="text-sky-300 text-xs w-8 text-right shrink-0">{entry.completionCount}</span>
+                        <span className="flex-1 text-left text-text-secondary truncate">{entry.list.name}</span>
+                        <span className="text-text-muted text-xs w-20 text-right shrink-0">{t.formatDuration(entry.totalDuration)}</span>
+                        <span className="text-accent-text text-xs w-8 text-right shrink-0">{entry.completionCount}</span>
                       </div>
                     ))
                   ) : (
@@ -222,11 +222,11 @@ export function HistoryPage() {
                       <button
                         key={entry.prayer.id}
                         onClick={() => setSelectedPrayer(entry.prayer)}
-                        className="w-full flex items-center rounded-lg px-3 py-2 text-sm hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center rounded-lg px-3 py-2 text-sm hover:bg-card transition-colors"
                       >
-                        <span className="flex-1 text-left text-slate-200 truncate">{entry.prayer.title}</span>
-                        <span className="text-slate-500 text-xs w-20 text-right shrink-0">{t.formatDuration(entry.totalDuration)}</span>
-                        <span className="text-sky-300 text-xs w-8 text-right shrink-0">{entry.count}</span>
+                        <span className="flex-1 text-left text-text-secondary truncate">{entry.prayer.title}</span>
+                        <span className="text-text-muted text-xs w-20 text-right shrink-0">{t.formatDuration(entry.totalDuration)}</span>
+                        <span className="text-accent-text text-xs w-8 text-right shrink-0">{entry.count}</span>
                       </button>
                     ))
                   )}

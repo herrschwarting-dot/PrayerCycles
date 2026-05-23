@@ -129,15 +129,15 @@ export function TapPrayPage() {
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
       {surfacedPrayers.length === 0 || allDone ? (
         <div className="flex flex-col items-center justify-center pt-20 text-center">
-          <p className="text-slate-400">{t.noPrayersToShow}</p>
+          <p className="text-text-tertiary">{t.noPrayersToShow}</p>
         </div>
       ) : (
-        <div className="mx-auto grid grid-cols-5 gap-3 max-w-4xl">
+        <div className="mx-auto columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-3 max-w-5xl">
           {surfacedPrayers.map((s) => {
             const key = `${s.prayer.id}-${s.listId}`
             const isHidden = !!hiddenIds[key]
             return (
-              <div key={key} className={isHidden ? 'invisible' : ''}>
+              <div key={key} className={`mb-3 break-inside-avoid ${isHidden ? 'invisible' : ''}`}>
                 <PrayerCard
                   surfaced={s}
                   onComplete={complete}
@@ -152,7 +152,7 @@ export function TapPrayPage() {
       {canUndo && (
         <button
           onClick={undo}
-          className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-slate-700 text-slate-300 shadow-lg hover:bg-slate-600"
+          className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-input text-text-secondary shadow-lg hover:bg-input-hover"
           aria-label={t.undoLastCompletion}
         >
           <Undo2 size={20} />

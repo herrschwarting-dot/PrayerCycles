@@ -189,4 +189,13 @@ export type Translations = {
   filterByTags: string
   seeMore: string
   seeLess: string
+
+  // Themes
+  themeSlate: string
+  themeNuudelchin: string
+  themeAltan: string
+  themeTal: string
+  themeTug: string
+  themeKhentii: string
+  themeGroupMongolian: string
 }

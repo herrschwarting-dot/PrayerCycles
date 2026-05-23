@@ -40,33 +40,33 @@ export function TrashPage() {
       <div className="mx-auto max-w-lg">
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 flex items-center gap-1 text-sm text-slate-400 hover:text-slate-300"
+          className="mb-4 flex items-center gap-1 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft size={16} />
           {t.back}
         </button>
 
-        <h2 className="text-xl font-semibold text-slate-100 mb-2">{t.deletedListsTitle}</h2>
-        <p className="text-xs text-slate-500 mb-4">{t.deletedListsDesc}</p>
+        <h2 className="text-xl font-semibold text-text mb-2">{t.deletedListsTitle}</h2>
+        <p className="text-xs text-text-muted mb-4">{t.deletedListsDesc}</p>
 
         {lists.length === 0 ? (
-          <p className="text-sm text-slate-500 italic pt-4">{t.noDeletedLists}</p>
+          <p className="text-sm text-text-muted italic pt-4">{t.noDeletedLists}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {lists.map((list) => (
               <div
                 key={list.id}
-                className="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3"
+                className="flex items-center justify-between rounded-lg bg-card px-4 py-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-200">{list.name}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="truncate text-sm font-medium text-text-secondary">{list.name}</p>
+                  <p className="text-xs text-text-muted mt-0.5">
                     {t.daysUntilDeletion(daysRemaining(list.deletedAt))}
                   </p>
                 </div>
                 <button
                   onClick={() => handleRestore(list.id)}
-                  className="ml-3 flex items-center gap-1.5 rounded-md bg-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-600 hover:text-slate-100"
+                  className="ml-3 flex items-center gap-1.5 rounded-md bg-input px-3 py-1.5 text-xs text-text-secondary hover:bg-input-hover hover:text-text"
                 >
                   <RotateCcw size={14} />
                   {t.restore}

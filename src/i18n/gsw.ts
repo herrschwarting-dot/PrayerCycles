@@ -186,4 +186,12 @@ export const gsw: Translations = {
   filterByTags: 'Nach Tags filtere',
   seeMore: 'meh aazeige',
   seeLess: 'weniger aazeige',
+
+  themeSlate: 'Default',
+  themeNuudelchin: 'Нүүдэлчин (Nomade)',
+  themeAltan: 'Алтан (Golden)',
+  themeTal: 'Тал (Steppe)',
+  themeTug: 'Туг (Flagge)',
+  themeKhentii: 'Хэнтий (Khentii)',
+  themeGroupMongolian: 'Mongolisch',
 }

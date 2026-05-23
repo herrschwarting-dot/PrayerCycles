@@ -1,5 +1,229 @@
 @import "tailwindcss";
 
+@theme {
+  /* Register token names — actual values come from CSS custom properties below */
+  --color-base: var(--t-base);
+  --color-card: var(--t-card);
+  --color-input: var(--t-input);
+  --color-input-hover: var(--t-input-hover);
+  --color-overlay: var(--t-overlay);
+  --color-border: var(--t-border);
+  --color-border-light: var(--t-border-light);
+  --color-text: var(--t-text);
+  --color-text-secondary: var(--t-text-secondary);
+  --color-text-tertiary: var(--t-text-tertiary);
+  --color-text-muted: var(--t-text-muted);
+  --color-accent: var(--t-accent);
+  --color-accent-text: var(--t-accent-text);
+  --color-accent-hover: var(--t-accent-hover);
+  --color-accent-glow: var(--t-accent-glow);
+  --color-danger: var(--t-danger);
+  --color-danger-hover: var(--t-danger-hover);
+  --color-danger-text: var(--t-danger-text);
+  --color-danger-bg: var(--t-danger-bg);
+  --color-success-text: var(--t-success-text);
+  --color-success-alt: var(--t-success-alt);
+  --color-success-border: var(--t-success-border);
+  --color-success-glow: var(--t-success-glow);
+  --color-success-bg: var(--t-success-bg);
+  --color-toggle: var(--t-toggle);
+}
+
+/* ═══════════════════════════════════════
+   Default theme — Slate
+   ═══════════════════════════════════════ */
+:root {
+  --t-base: #0f172a;
+  --t-card: #1e293b;
+  --t-input: #334155;
+  --t-input-hover: #475569;
+  --t-overlay: rgba(0,0,0,0.45);
+  --t-border: #334155;
+  --t-border-light: #475569;
+  --t-text: #f1f5f9;
+  --t-text-secondary: #cbd5e1;
+  --t-text-tertiary: #94a3b8;
+  --t-text-muted: #64748b;
+  --t-accent: #0ea5e9;
+  --t-accent-text: #7dd3fc;
+  --t-accent-hover: #bae6fd;
+  --t-accent-glow: rgba(125,211,252,0.35);
+  --t-danger: #dc2626;
+  --t-danger-hover: #ef4444;
+  --t-danger-text: #f87171;
+  --t-danger-bg: rgba(127,29,29,0.4);
+  --t-success-text: #6ee7b7;
+  --t-success-alt: #34d399;
+  --t-success-border: rgba(52,211,153,0.8);
+  --t-success-glow: rgba(52,211,153,0.35);
+  --t-success-bg: rgba(6,78,59,0.4);
+  --t-toggle: #22c55e;
+}
+
+/* ═══════════════════════════════════════
+   Нүүдэлчин (Nomad) — Mongolian steppe
+   Warm browns, leather, felt, golden sun
+   ═══════════════════════════════════════ */
+[data-theme="nuudelchin"] {
+  --t-base: #1a1209;
+  --t-card: #2a1f11;
+  --t-input: #3d2e1a;
+  --t-input-hover: #523f24;
+  --t-overlay: rgba(10,6,2,0.5);
+  --t-border: #3d2e1a;
+  --t-border-light: #523f24;
+  --t-text: #f5ebe0;
+  --t-text-secondary: #d4c4a8;
+  --t-text-tertiary: #a8916e;
+  --t-text-muted: #7a6545;
+  --t-accent: #c8902e;
+  --t-accent-text: #e8b86d;
+  --t-accent-hover: #f0d4a0;
+  --t-accent-glow: rgba(200,144,46,0.30);
+  --t-danger: #b83a2a;
+  --t-danger-hover: #d44a38;
+  --t-danger-text: #e87c6c;
+  --t-danger-bg: rgba(120,30,18,0.35);
+  --t-success-text: #a8c77a;
+  --t-success-alt: #8ab35c;
+  --t-success-border: rgba(138,179,92,0.75);
+  --t-success-glow: rgba(138,179,92,0.30);
+  --t-success-bg: rgba(42,60,20,0.35);
+  --t-toggle: #8ab35c;
+}
+
+/* ═══════════════════════════════════════
+   Алтан (Altan) — Golden Mongolian
+   Deep imperial blue, ornamental gold,
+   silk & ceremony
+   ═══════════════════════════════════════ */
+[data-theme="altan"] {
+  --t-base: #0a0e1e;
+  --t-card: #121832;
+  --t-input: #1c254a;
+  --t-input-hover: #283264;
+  --t-overlay: rgba(4,4,16,0.55);
+  --t-border: #1c254a;
+  --t-border-light: #283264;
+  --t-text: #f0ecdf;
+  --t-text-secondary: #c9c1a5;
+  --t-text-tertiary: #9a8e6e;
+  --t-text-muted: #6b6048;
+  --t-accent: #d4a42c;
+  --t-accent-text: #ecc85e;
+  --t-accent-hover: #f5dfa0;
+  --t-accent-glow: rgba(212,164,44,0.30);
+  --t-danger: #a83030;
+  --t-danger-hover: #c84040;
+  --t-danger-text: #e87070;
+  --t-danger-bg: rgba(100,20,20,0.35);
+  --t-success-text: #7ec8a0;
+  --t-success-alt: #4aac78;
+  --t-success-border: rgba(74,172,120,0.75);
+  --t-success-glow: rgba(74,172,120,0.30);
+  --t-success-bg: rgba(16,60,38,0.35);
+  --t-toggle: #4aac78;
+}
+
+/* ═══════════════════════════════════════
+   Тал (Tal) — Mongolian Steppe
+   Deep greens, earth, grazing yaks,
+   endless grassland under soft light
+   ═══════════════════════════════════════ */
+[data-theme="tal"] {
+  --t-base: #0c1410;
+  --t-card: #162118;
+  --t-input: #233428;
+  --t-input-hover: #314636;
+  --t-overlay: rgba(4,8,5,0.50);
+  --t-border: #233428;
+  --t-border-light: #314636;
+  --t-text: #e8efe6;
+  --t-text-secondary: #b8c9b2;
+  --t-text-tertiary: #839c7a;
+  --t-text-muted: #5a7252;
+  --t-accent: #6aad5a;
+  --t-accent-text: #92ce84;
+  --t-accent-hover: #bce4b2;
+  --t-accent-glow: rgba(106,173,90,0.30);
+  --t-danger: #b04030;
+  --t-danger-hover: #cc5040;
+  --t-danger-text: #e08070;
+  --t-danger-bg: rgba(100,28,18,0.35);
+  --t-success-text: #a0d4b0;
+  --t-success-alt: #6cc090;
+  --t-success-border: rgba(108,192,144,0.75);
+  --t-success-glow: rgba(108,192,144,0.30);
+  --t-success-bg: rgba(20,60,36,0.35);
+  --t-toggle: #6cc090;
+}
+
+/* ═══════════════════════════════════════
+   Туг (Tug) — Mongolian Flag
+   Flag blue base, flag red accent,
+   Soyombo gold highlights
+   ═══════════════════════════════════════ */
+[data-theme="tug"] {
+  --t-base: #041a38;
+  --t-card: #0a2650;
+  --t-input: #133468;
+  --t-input-hover: #1e4480;
+  --t-overlay: rgba(2,10,24,0.55);
+  --t-border: #133468;
+  --t-border-light: #1e4480;
+  --t-text: #f2ede0;
+  --t-text-secondary: #c8c0aa;
+  --t-text-tertiary: #8e8470;
+  --t-text-muted: #5e5648;
+  --t-accent: #c4272f;
+  --t-accent-text: #e85a5a;
+  --t-accent-hover: #f09090;
+  --t-accent-glow: rgba(196,39,47,0.30);
+  --t-danger: #c4272f;
+  --t-danger-hover: #e03838;
+  --t-danger-text: #f07070;
+  --t-danger-bg: rgba(120,18,22,0.35);
+  --t-success-text: #e8c44c;
+  --t-success-alt: #d4a82c;
+  --t-success-border: rgba(212,168,44,0.75);
+  --t-success-glow: rgba(212,168,44,0.30);
+  --t-success-bg: rgba(80,60,10,0.35);
+  --t-toggle: #d4a82c;
+}
+
+/* ═══════════════════════════════════════
+   Хэнтий (Khentii) — Khentii Province
+   Taiga forests, Onon River, mountain
+   valleys, deep greens & cool river blue
+   ═══════════════════════════════════════ */
+[data-theme="khentii"] {
+  --t-base: #0b1214;
+  --t-card: #13202a;
+  --t-input: #1c3040;
+  --t-input-hover: #264052;
+  --t-overlay: rgba(4,8,10,0.55);
+  --t-border: #1c3040;
+  --t-border-light: #264052;
+  --t-text: #e6f0ef;
+  --t-text-secondary: #aac8c4;
+  --t-text-tertiary: #729892;
+  --t-text-muted: #4e6e68;
+  --t-accent: #3a9e8a;
+  --t-accent-text: #5cceb8;
+  --t-accent-hover: #90e8d6;
+  --t-accent-glow: rgba(58,158,138,0.30);
+  --t-danger: #b04038;
+  --t-danger-hover: #cc5048;
+  --t-danger-text: #e08070;
+  --t-danger-bg: rgba(100,28,22,0.35);
+  --t-success-text: #88d0a8;
+  --t-success-alt: #58b880;
+  --t-success-border: rgba(88,184,128,0.75);
+  --t-success-glow: rgba(88,184,128,0.30);
+  --t-success-bg: rgba(18,56,36,0.35);
+  --t-toggle: #58b880;
+}
+
 html {
   overflow-y: scroll;
   overflow-x: hidden;

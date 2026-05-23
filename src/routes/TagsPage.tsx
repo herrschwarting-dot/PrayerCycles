@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Hash, Trash2, Plus } from 'lucide-react'
+import { Hash, Trash2, Plus, Circle, CheckCircle2 } from 'lucide-react'
 import { useT } from '../i18n'
 import { getAllTags, getTagCounts, renameTag, deleteTag, createStandaloneTag } from '../features/tags/tag-operations'
 
@@ -16,6 +16,8 @@ export function TagsPage() {
   const [editValue, setEditValue] = useState('')
   const [confirmDeleteTag, setConfirmDeleteTag] = useState<string | null>(null)
   const [newTagName, setNewTagName] = useState('')
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
   const editRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -48,7 +50,6 @@ export function TagsPage() {
   function startEditing(tagName: string) {
     setEditingTag(tagName)
     setEditValue(tagName)
-    // Focus happens via autoFocus on the input
   }
 
   async function commitRename(oldName: string) {
@@ -64,18 +65,14 @@ export function TagsPage() {
 
   function handleEditChange(e: React.ChangeEvent<HTMLInputElement>, oldName: string) {
     const val = e.target.value
-
-    // Double-space commits the edit
     if (val.endsWith('  ')) {
       const trimmed = val.trimEnd()
       if (trimmed) {
         setEditValue(trimmed)
-        // Use setTimeout so the state updates before commit
         setTimeout(() => commitRename(oldName), 0)
         return
       }
     }
-
     setEditValue(val)
   }
 
@@ -101,80 +98,199 @@ export function TagsPage() {
     load()
   }
 
+  function toggleSelect(tagName: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(tagName)) next.delete(tagName)
+      else next.add(tagName)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === tags.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(tags.map((t) => t.name)))
+    }
+  }
+
+  async function handleBulkDelete() {
+    for (const tagName of selected) {
+      await deleteTag(tagName)
+    }
+    setSelected(new Set())
+    setConfirmBulkDelete(false)
+    window.dispatchEvent(new Event('prayercycles:refresh'))
+    load()
+  }
+
+  const allSelected = tags.length > 0 && selected.size === tags.length
+  const someSelected = selected.size > 0
+
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
       <div className="mx-auto max-w-lg">
-        <h2 className="text-xl font-semibold text-slate-100 mb-1">{t.prayerTags}</h2>
-        <p className="text-xs text-slate-500 mb-4">{t.prayerTagsDesc}</p>
+        <h2 className="text-xl font-semibold text-text mb-1">{t.prayerTags}</h2>
+        <p className="text-xs text-text-muted mb-4">{t.prayerTagsDesc}</p>
 
-        {/* Create tag input */}
-        <form onSubmit={handleCreateTag} className="mb-4 flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
-            <Hash size={16} className="text-slate-500 shrink-0" />
-            <input
-              type="text"
-              placeholder={t.newTagPlaceholder}
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none"
-            />
+        {/* Select all + Create/Search bar */}
+        <div className="mb-4 flex items-center gap-2">
+          {/* Select all circle — always visible */}
+          {tags.length > 0 && (
+            <button
+              type="button"
+              onClick={toggleSelectAll}
+              className="shrink-0 text-text-muted hover:text-text-secondary transition-colors"
+            >
+              {allSelected ? (
+                <CheckCircle2 size={20} className="text-accent" />
+              ) : (
+                <Circle size={20} />
+              )}
+            </button>
+          )}
+
+          {/* Input area — overlaid by bulk delete bar when selecting */}
+          <div className="relative flex-1">
+            <form onSubmit={handleCreateTag} className={`flex items-center gap-2 ${someSelected ? 'invisible' : ''}`}>
+              <div className="flex flex-1 items-center gap-2 rounded-lg bg-card border border-border px-3 py-2">
+                <Hash size={16} className="text-text-muted shrink-0" />
+                <input
+                  type="text"
+                  placeholder={t.newTagPlaceholder}
+                  value={newTagName}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    if (val.endsWith('  ')) {
+                      const trimmed = val.trimEnd()
+                      if (trimmed) {
+                        const created = createStandaloneTag(trimmed)
+                        if (created) load()
+                        setNewTagName('')
+                        return
+                      }
+                    }
+                    setNewTagName(val)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Tab') {
+                      e.preventDefault()
+                      const trimmed = newTagName.trim()
+                      if (trimmed) {
+                        const created = createStandaloneTag(trimmed)
+                        if (created) load()
+                        setNewTagName('')
+                      }
+                    }
+                  }}
+                  className="flex-1 bg-transparent text-sm text-text placeholder-text-muted outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!newTagName.trim()}
+                className="flex items-center gap-1 rounded-lg bg-input px-3 py-2 text-sm text-text-secondary hover:bg-input-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus size={16} />
+                {t.createTag}
+              </button>
+            </form>
+
+            {someSelected && (
+              <div className="absolute inset-0 flex items-center justify-between rounded-lg bg-card border border-danger-text/30 px-4">
+                <span className="text-xs text-text-secondary">{selected.size} selected</span>
+                {confirmBulkDelete ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-danger-text">{t.deleteConfirm}</span>
+                    <button
+                      onClick={handleBulkDelete}
+                      className="rounded bg-danger px-2 py-0.5 text-xs text-white hover:bg-danger-hover"
+                    >
+                      {t.yes}
+                    </button>
+                    <button
+                      onClick={() => setConfirmBulkDelete(false)}
+                      className="rounded bg-input px-2 py-0.5 text-xs text-text-secondary hover:bg-input-hover"
+                    >
+                      {t.no}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmBulkDelete(true)}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs text-danger-text hover:bg-input transition-colors"
+                  >
+                    <Trash2 size={14} />
+                    {t.delete}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          <button
-            type="submit"
-            disabled={!newTagName.trim()}
-            className="flex items-center gap-1 rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            <Plus size={16} />
-            {t.createTag}
-          </button>
-        </form>
+        </div>
 
         {tags.length === 0 ? (
-          <p className="text-sm text-slate-500 italic pt-4">{t.noTagsYet}</p>
+          <p className="text-sm text-text-muted italic pt-4">{t.noTagsYet}</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {tags.map((tag) => (
+            {tags.filter((tag) => !newTagName.trim() || tag.name.toLowerCase().includes(newTagName.trim().toLowerCase())).map((tag) => (
               <div
                 key={tag.name}
-                className="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3"
+                className="flex items-center gap-3 rounded-lg bg-card px-4 py-3"
               >
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  <Hash size={14} className="text-slate-400 shrink-0" />
+                {/* Selection circle */}
+                <button
+                  onClick={() => toggleSelect(tag.name)}
+                  className="shrink-0 text-text-muted hover:text-text-secondary transition-colors"
+                >
+                  {selected.has(tag.name) ? (
+                    <CheckCircle2 size={18} className="text-accent" />
+                  ) : (
+                    <Circle size={18} />
+                  )}
+                </button>
+
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   {editingTag === tag.name ? (
-                    <input
-                      ref={editRef}
-                      type="text"
-                      value={editValue}
-                      onChange={(e) => handleEditChange(e, tag.name)}
-                      onKeyDown={(e) => handleEditKeyDown(e, tag.name)}
-                      onBlur={() => handleEditBlur(tag.name)}
-                      className="flex-1 bg-transparent text-sm font-medium text-slate-100 outline-none border-b border-slate-500 pb-0.5"
-                      autoFocus
-                    />
+                    <div className="flex items-center gap-1 rounded-full bg-input px-2.5 py-1">
+                      <Hash size={12} className="text-text-tertiary shrink-0" />
+                      <input
+                        ref={editRef}
+                        type="text"
+                        value={editValue}
+                        onChange={(e) => handleEditChange(e, tag.name)}
+                        onKeyDown={(e) => handleEditKeyDown(e, tag.name)}
+                        onBlur={() => handleEditBlur(tag.name)}
+                        className="bg-transparent text-xs font-medium text-text outline-none w-24"
+                        autoFocus
+                      />
+                    </div>
                   ) : (
                     <span
                       onClick={() => startEditing(tag.name)}
-                      className="text-sm font-medium text-slate-200 truncate cursor-text hover:text-slate-100"
+                      className="inline-flex items-center gap-1 rounded-full bg-input px-2.5 py-1 text-xs text-text-secondary cursor-text hover:bg-input-hover"
                     >
+                      <Hash size={12} className="shrink-0" />
                       {tag.name}
                     </span>
                   )}
-                  <span className="text-xs text-slate-500 shrink-0">({tag.prayerCount})</span>
+                  <span className="text-xs text-text-muted shrink-0">({tag.prayerCount})</span>
                 </div>
 
                 <div className="flex items-center gap-1 ml-3">
                   {confirmDeleteTag === tag.name ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-red-400">{t.deleteConfirm}</span>
+                      <span className="text-xs text-danger-text">{t.deleteConfirm}</span>
                       <button
                         onClick={() => handleDelete(tag.name)}
-                        className="rounded bg-red-600 px-2 py-0.5 text-xs text-white hover:bg-red-500"
+                        className="rounded bg-danger px-2 py-0.5 text-xs text-white hover:bg-danger-hover"
                       >
                         {t.yes}
                       </button>
                       <button
                         onClick={() => setConfirmDeleteTag(null)}
-                        className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600"
+                        className="rounded bg-input px-2 py-0.5 text-xs text-text-secondary hover:bg-input-hover"
                       >
                         {t.no}
                       </button>
@@ -182,7 +298,7 @@ export function TagsPage() {
                   ) : (
                     <button
                       onClick={() => setConfirmDeleteTag(tag.name)}
-                      className="rounded p-1.5 text-slate-400 hover:bg-slate-700 hover:text-red-400"
+                      className="rounded p-1.5 text-text-tertiary hover:bg-input hover:text-danger-text"
                     >
                       <Trash2 size={14} />
                     </button>

@@ -46,16 +46,14 @@ export function ListDetailPage() {
   }
 
   function getTrailStyle(mode: SortMode): string {
-    // Find the most recent index of this mode in the trail
     const lastIndex = sortTrail.lastIndexOf(mode)
-    if (lastIndex === -1) return 'bg-slate-800 text-slate-500'
+    if (lastIndex === -1) return 'bg-card text-text-muted'
 
     const recency = sortTrail.length - 1 - lastIndex
-    // If a more recent entry exists for this same mode, only show the latest
-    if (recency === 0) return 'bg-sky-500 text-white'
-    if (recency === 1) return 'bg-sky-500/40 text-slate-300'
-    if (recency === 2) return 'bg-sky-500/20 text-slate-400'
-    return 'bg-slate-800 text-slate-500'
+    if (recency === 0) return 'bg-accent text-white'
+    if (recency === 1) return 'bg-accent/40 text-text-secondary'
+    if (recency === 2) return 'bg-accent/20 text-text-tertiary'
+    return 'bg-card text-text-muted'
   }
 
   // Edit fields
@@ -137,7 +135,7 @@ export function ListDetailPage() {
   }
 
   if (!list) {
-    return <div className="flex h-40 items-center justify-center text-slate-500">{t.loading}</div>
+    return <div className="flex h-40 items-center justify-center text-text-muted">{t.loading}</div>
   }
 
   function allowedUnitsForCadence(c: Cadence): PersistenceUnit[] {
@@ -163,8 +161,6 @@ export function ListDetailPage() {
 
   const sortedPrayers = [...prayers].sort((a, b) => {
     if (sortMode === 'custom' || sortMode === 'original') {
-      // 'original' uses createdAt unless custom sort exists
-      // 'custom' uses sortOrder if available
       if (sortMode === 'custom') {
         const aOrder = a.sortOrder?.[id!]
         const bOrder = b.sortOrder?.[id!]
@@ -243,27 +239,30 @@ export function ListDetailPage() {
   // Calculate total time prayed for all prayers in this list
   const listTotalTimePrayed = prayers.reduce((sum, p) => sum + (p.totalTimePrayed ?? 0), 0)
 
+  // Edit mode input style — consistent for all fields including TagInput
+  const editInputClass = 'bg-white/10 outline-none focus:ring-2 focus:ring-white/30'
+
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
       <div className="mx-auto max-w-lg">
         {/* Header */}
         <button
           onClick={() => navigate('/lists')}
-          className="mb-4 flex items-center gap-1 text-sm text-slate-400 hover:text-slate-300"
+          className="mb-4 flex items-center gap-1 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft size={16} />
           {t.backToPrayerLists}
         </button>
 
         {/* List info */}
-        <div className="rounded-lg p-5 shadow-md bg-slate-800">
+        <div className="rounded-lg p-5 shadow-md bg-card">
           {editing ? (
             <div className="space-y-3">
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-slate-100 font-semibold text-lg outline-none focus:ring-2 focus:ring-white/30"
+                className={`w-full rounded-lg px-3 py-2 text-text font-semibold text-lg ${editInputClass}`}
               />
               <textarea
                 placeholder={t.descriptionOptional}
@@ -271,14 +270,14 @@ export function ListDetailPage() {
                 onChange={(e) => setDescription(e.target.value.slice(0, 500))}
                 maxLength={500}
                 rows={2}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-slate-200 text-sm outline-none focus:ring-2 focus:ring-white/30 resize-none"
+                className={`w-full rounded-lg px-3 py-2 text-text-secondary text-sm resize-none ${editInputClass}`}
               />
               <div>
-                <div className="mb-1 text-xs text-slate-300">{t.tags}</div>
-                <TagInput tags={editTags} onChange={setEditTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+                <div className="mb-1 text-xs text-text-secondary">{t.tags}</div>
+                <TagInput tags={editTags} onChange={setEditTags} placeholder={t.tagsPlaceholder} allTags={existingTags} className="bg-white/10" />
               </div>
               <div>
-                <div className="mb-1 text-xs text-slate-300">{t.cycle}</div>
+                <div className="mb-1 text-xs text-text-secondary">{t.cycle}</div>
                 <div className="flex flex-wrap gap-1">
                   {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                     <button
@@ -292,7 +291,7 @@ export function ListDetailPage() {
                           if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
                         }
                       }}
-                      className={`rounded px-2 py-0.5 text-xs capitalize ${cadence === c ? 'bg-slate-700 text-white' : 'bg-white/10 text-slate-200'}`}
+                      className={`rounded px-2 py-0.5 text-xs capitalize ${cadence === c ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
                     >
                       {c}
                     </button>
@@ -300,7 +299,7 @@ export function ListDetailPage() {
                 </div>
               </div>
               <div>
-                <div className="mb-1 text-xs text-slate-300">{t.frequency}</div>
+                <div className="mb-1 text-xs text-text-secondary">{t.frequency}</div>
                 <div className="flex flex-wrap gap-1">
                   {([[('wake' as PersistenceUnit), t.wake], [('passage' as PersistenceUnit), t.passage], [('season' as PersistenceUnit), t.season], [('orbit' as PersistenceUnit), t.orbit]] as [PersistenceUnit, string][])
                     .filter(([unit]) => allowedUnitsForCadence(cadence).includes(unit))
@@ -309,16 +308,16 @@ export function ListDetailPage() {
                       key={unit}
                       type="button"
                       onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                      className={`rounded px-2 py-0.5 text-xs ${persistenceUnit === unit ? 'bg-slate-700 text-white' : 'bg-white/10 text-slate-200'}`}
+                      className={`rounded px-2 py-0.5 text-xs ${persistenceUnit === unit ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
                 <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-slate-400">{t.every}</span>
+                  <span className="text-xs text-text-tertiary">{t.every}</span>
                   {cadence === 'daily' ? (
-                    <span className="w-14 text-xs text-slate-100 text-center">1</span>
+                    <span className="w-14 text-xs text-text text-center">1</span>
                   ) : (
                     <input
                       type="number"
@@ -326,10 +325,10 @@ export function ListDetailPage() {
                       max={99}
                       value={persistenceEvery}
                       onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
-                      className="w-14 rounded bg-white/10 px-2 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-white/30"
+                      className={`w-14 rounded px-2 py-0.5 text-xs text-text text-center ${editInputClass}`}
                     />
                   )}
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-text-tertiary">
                     {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
                       : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
                       : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
@@ -338,23 +337,23 @@ export function ListDetailPage() {
                 </div>
               </div>
               <div>
-                <div className="mb-1 text-xs text-slate-300">{t.lifecycle}</div>
+                <div className="mb-1 text-xs text-text-secondary">{t.lifecycle}</div>
                 <div className="flex gap-1">
                   {([['indefinite', t.indefinite], ['finite', t.finite]] as const).map(([l, label]) => (
                     <button
                       key={l}
                       type="button"
                       onClick={() => setLifecycleType(l)}
-                      className={`rounded px-2 py-0.5 text-xs capitalize ${lifecycleType === l ? 'bg-slate-700 text-white' : 'bg-white/10 text-slate-200'}`}
+                      className={`rounded px-2 py-0.5 text-xs capitalize ${lifecycleType === l ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
                 <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-slate-400">{t.retiresAfter}</span>
+                  <span className="text-xs text-text-tertiary">{t.retiresAfter}</span>
                   {lifecycleType === 'indefinite' ? (
-                    <span className="w-14 text-xs text-slate-100 text-center">∞</span>
+                    <span className="w-14 text-xs text-text text-center">∞</span>
                   ) : (
                     <input
                       type="number"
@@ -362,22 +361,22 @@ export function ListDetailPage() {
                       max={999}
                       value={retireAfter}
                       onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                      className="w-14 rounded bg-white/10 px-2 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-white/30"
+                      className={`w-14 rounded px-2 py-0.5 text-xs text-text text-center ${editInputClass}`}
                     />
                   )}
-                  <span className="text-xs text-slate-400">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
+                  <span className="text-xs text-text-tertiary">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={handleSaveList}
-                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.save}
                 </button>
                 <button
                   onClick={() => { setEditing(false); setName(list.name); setDescription(list.description); setEditTags(list.tags ?? []) }}
-                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.cancel}
                 </button>
@@ -388,27 +387,27 @@ export function ListDetailPage() {
               {/* Active/Deactivated toggle — top right */}
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-slate-400 leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
-                  <h2 className="text-xl font-semibold text-slate-100 -mt-0.5">{list.name}</h2>
+                  <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
+                  <h2 className="text-xl font-semibold text-text -mt-0.5">{list.name}</h2>
                 </div>
                 <button
                   onClick={handleToggleArchive}
                   className="flex items-center gap-1.5 shrink-0 mt-1"
                   title={list.status === 'active' ? t.activeTapToDeactivate : t.deactivatedTapToReactivate}
                 >
-                  <span className="text-[10px] text-slate-500">{list.status === 'active' ? t.active : t.inactive}</span>
-                  <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${list.status === 'active' ? 'bg-green-500' : 'bg-slate-600'}`}>
+                  <span className="text-[10px] text-text-muted">{list.status === 'active' ? t.active : t.inactive}</span>
+                  <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${list.status === 'active' ? 'bg-toggle' : 'bg-input-hover'}`}>
                     <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${list.status === 'active' ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
                   </div>
                 </button>
               </div>
               {list.description && (
-                <p className="mt-1 text-sm text-slate-300">{list.description}</p>
+                <p className="mt-1 text-sm text-text-secondary">{list.description}</p>
               )}
               {(list.tags ?? []).length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {list.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-slate-700 px-2 py-0.5 text-xs text-slate-400">
+                    <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-xs text-text-tertiary">
                       #{tag}
                     </span>
                   ))}
@@ -417,7 +416,7 @@ export function ListDetailPage() {
               <div className="mt-3 flex items-center justify-between">
                 <button
                   onClick={() => setEditing(true)}
-                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.edit}
                 </button>
@@ -425,23 +424,23 @@ export function ListDetailPage() {
                   {!confirmDelete ? (
                     <button
                       onClick={() => setConfirmDelete(true)}
-                      className="flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="flex items-center gap-1 rounded-lg border border-danger-text/30 px-3 py-1 text-sm text-danger-text hover:bg-danger-text/10 transition-colors"
                     >
                       <Trash2 size={14} />
                       {t.delete}
                     </button>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-red-400">{t.deleteConfirm}</span>
+                      <span className="text-sm text-danger-text">{t.deleteConfirm}</span>
                       <button
                         onClick={handleDeleteList}
-                        className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-500 transition-colors"
+                        className="rounded-lg bg-danger px-2 py-1 text-xs text-white hover:bg-danger-hover transition-colors"
                       >
                         {t.yes}
                       </button>
                       <button
                         onClick={() => setConfirmDelete(false)}
-                        className="rounded-lg border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-600 transition-colors"
+                        className="rounded-lg border border-border-light bg-input px-2 py-1 text-xs text-text-secondary hover:bg-input-hover transition-colors"
                       >
                         {t.no}
                       </button>
@@ -458,31 +457,31 @@ export function ListDetailPage() {
           {!showAddPrayer ? (
             <button
               onClick={() => setShowAddPrayer(true)}
-              className="text-sm text-sky-300 hover:text-sky-200 transition-colors"
+              className="text-sm text-accent-text hover:text-accent-hover transition-colors"
             >
               {t.addPrayersToList}
             </button>
           ) : (
-            <div className="rounded-lg bg-slate-800 p-4 space-y-3">
+            <div className="rounded-lg bg-card p-4 space-y-3">
               <textarea
                 placeholder={`${t.addPrayersPlaceholder}\n${t.addPrayersExample}`}
                 value={newPrayerText}
                 onChange={(e) => setNewPrayerText(e.target.value)}
                 rows={4}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-slate-100 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-white/30 resize-none"
+                className={`w-full rounded-lg px-3 py-2 text-text placeholder-text-tertiary text-sm resize-none ${editInputClass}`}
                 autoFocus
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddPrayers}
                   disabled={!newPrayerText.trim()}
-                  className="rounded-lg bg-slate-700 px-3 py-1 text-sm text-white hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-input px-3 py-1 text-sm text-text hover:bg-input-hover disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {t.add}
                 </button>
                 <button
                   onClick={() => { setShowAddPrayer(false); setNewPrayerText('') }}
-                  className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.cancel}
                 </button>
@@ -493,9 +492,9 @@ export function ListDetailPage() {
 
         {/* Total time prayed */}
         {listTotalTimePrayed > 0 && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+          <div className="mt-3 flex items-center gap-2 text-xs text-text-muted">
             <span>{t.totalTimePrayed}:</span>
-            <span className="text-slate-300">{formatTime(listTotalTimePrayed)}</span>
+            <span className="text-text-secondary">{formatTime(listTotalTimePrayed)}</span>
           </div>
         )}
 
@@ -519,22 +518,22 @@ export function ListDetailPage() {
               {!confirmResetOrder ? (
                 <button
                   onClick={() => setConfirmResetOrder(true)}
-                  className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                  className="text-xs text-text-muted hover:text-text-secondary transition-colors"
                 >
                   {t.setDefaultOrder}
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">{t.resetOrderConfirm}</span>
+                  <span className="text-xs text-text-tertiary">{t.resetOrderConfirm}</span>
                   <button
                     onClick={handleResetOrder}
-                    className="rounded bg-slate-700 px-2 py-0.5 text-xs text-white hover:bg-slate-600"
+                    className="rounded bg-input px-2 py-0.5 text-xs text-text hover:bg-input-hover"
                   >
                     {t.yes}
                   </button>
                   <button
                     onClick={() => setConfirmResetOrder(false)}
-                    className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700"
+                    className="rounded bg-card px-2 py-0.5 text-xs text-text-secondary hover:bg-input"
                   >
                     {t.no}
                   </button>
@@ -553,23 +552,23 @@ export function ListDetailPage() {
                 onDrop={() => handleDrop(idx)}
                 onDragEnd={() => { setDragIdx(null); setOverIdx(null) }}
                 onTouchStart={(e) => { if (sortMode === 'custom') handleTouchStart(idx, e) }}
-                className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-card transition-colors cursor-pointer ${
                   dragIdx === idx ? 'opacity-40' : ''
-                } ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? 'border-t-2 border-sky-400' : ''}`}
+                } ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? 'border-t-2 border-accent' : ''}`}
                 onClick={() => { if (dragIdx === null) setSelectedPrayer(prayer) }}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   {sortMode === 'custom' && (
-                    <GripVertical size={14} className="text-slate-600 shrink-0 cursor-grab" />
+                    <GripVertical size={14} className="text-input-hover shrink-0 cursor-grab" />
                   )}
                   <span className="truncate">{prayer.title}</span>
                 </div>
-                <span className="text-xs text-sky-300 ml-2 shrink-0">{prayer.prayerTally}</span>
+                <span className="text-xs text-accent-text ml-2 shrink-0">{prayer.prayerTally}</span>
               </div>
             ))}
           </div>
           {prayers.length === 0 && (
-            <p className="text-sm text-slate-500 italic pt-2">{t.noPrayersInList}</p>
+            <p className="text-sm text-text-muted italic pt-2">{t.noPrayersInList}</p>
           )}
         </div>
       </div>

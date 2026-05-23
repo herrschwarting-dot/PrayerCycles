@@ -47,7 +47,7 @@ function BarTimer({
     if (e.key === 'Escape') setEditingPart(null)
   }
 
-  const clickClass = disabled ? '' : 'cursor-pointer hover:text-sky-200 transition-colors'
+  const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
 
   return (
     <div className="flex items-center gap-0.5" onBlur={(e) => {
@@ -61,12 +61,12 @@ function BarTimer({
           value={editMin}
           onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-8 font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-8 font-mono font-semibold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
-        <span onClick={() => startEdit('min')} className={`text-xs font-mono font-semibold text-slate-100 ${clickClass}`}>{m}</span>
+        <span onClick={() => startEdit('min')} className={`text-xs font-mono font-semibold text-text ${clickClass}`}>{m}</span>
       )}
-      <span className="text-xs text-slate-500">:</span>
+      <span className="text-xs text-text-muted">:</span>
       {editingPart === 'sec' ? (
         <input
           ref={secRef}
@@ -75,10 +75,10 @@ function BarTimer({
           value={editSec}
           onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-8 font-mono font-semibold rounded bg-slate-700 px-1 py-0.5 text-slate-100 text-center outline-none focus:ring-2 focus:ring-sky-400"
+          className="w-8 font-mono font-semibold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
-        <span onClick={() => startEdit('sec')} className={`text-xs font-mono font-semibold text-slate-100 ${clickClass}`}>{String(s).padStart(2, '0')}</span>
+        <span onClick={() => startEdit('sec')} className={`text-xs font-mono font-semibold text-text ${clickClass}`}>{String(s).padStart(2, '0')}</span>
       )}
     </div>
   )
@@ -125,34 +125,34 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
   const showPrayerTitle = running || midSession
 
   return (
-    <div className="sticky top-0 z-40 bg-slate-900 px-4 pb-2 pt-4">
+    <div className="sticky top-0 z-40 bg-base px-4 pb-2 pt-4">
       <div className="mx-auto flex max-w-lg items-center gap-2">
         {/* Hamburger */}
         <button
           onClick={onMenuOpen}
-          className="rounded-full p-2 text-slate-400 hover:bg-slate-800"
+          className="rounded-full p-2 text-text-tertiary hover:bg-card"
           aria-label={t.openMenu}
         >
           <Menu size={20} />
         </button>
 
         {/* Main bar pill */}
-        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5">
+        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-card px-3 py-1.5">
           {/* List selector or current prayer title */}
           {showPrayerTitle && currentPrayer ? (
             <div className="flex items-center gap-1.5 min-w-0 shrink">
-              <span className="text-xs text-slate-500 shrink-0">{t.praying}</span>
-              <span className="text-xs font-normal text-slate-300 truncate border-2 border-slate-500 rounded px-1.5 -my-px leading-tight">{currentPrayer.title}</span>
+              <span className="text-xs text-text-muted shrink-0">{t.praying}</span>
+              <span className="text-xs font-normal text-text-secondary truncate border-2 border-text-muted rounded px-1.5 -my-px leading-tight">{currentPrayer.title}</span>
             </div>
           ) : (
             <button
               onClick={() => { if (!running) setDropdownOpen(!dropdownOpen) }}
               className="flex items-center gap-1 min-w-0 shrink"
             >
-              <span className={`text-xs font-semibold truncate ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
+              <span className={`text-xs font-semibold truncate ${hasSelection ? 'text-text' : 'text-text-muted'}`}>
                 {displayName}
               </span>
-              <ChevronDown size={14} className={`shrink-0 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown size={14} className={`shrink-0 text-text-tertiary transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
 
@@ -164,7 +164,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                 onChangeSeconds={setPrayerIncrement}
                 disabled={running}
               />
-              <span className="text-xs text-slate-600">/</span>
+              <span className="text-xs text-input-hover">/</span>
               <BarTimer
                 seconds={totalTimerValue}
                 onChangeSeconds={(s) => {
@@ -185,7 +185,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
               className={`flex items-center ${running ? 'opacity-50' : ''}`}
               title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
             >
-              <div className={`relative w-6 h-[14px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-green-500' : 'bg-slate-600'}`}>
+              <div className={`relative w-6 h-[14px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input-hover'}`}>
                 <div className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[12px]' : 'translate-x-[2px]'}`} />
               </div>
             </button>
@@ -195,31 +195,31 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           {dropdownOpen && !running && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
-              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 shadow-lg overflow-hidden">
+              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-hidden">
                 <button
                   onClick={() => { setSelectedListId(TODAY_ID); setDropdownOpen(false) }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
-                    isToday ? 'text-sky-300' : 'text-slate-200'
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
+                    isToday ? 'text-accent-text' : 'text-text-secondary'
                   }`}
                 >
                   {t.todaysPrayers}
                 </button>
                 {lists.length > 0 && (
-                  <div className="border-t border-slate-700" />
+                  <div className="border-t border-border" />
                 )}
                 {lists.map((list) => (
                   <button
                     key={list.id}
                     onClick={() => { setSelectedListId(list.id); setDropdownOpen(false) }}
-                    className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-700 transition-colors ${
-                      selectedListId === list.id ? 'text-sky-300' : 'text-slate-200'
+                    className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
+                      selectedListId === list.id ? 'text-accent-text' : 'text-text-secondary'
                     }`}
                   >
                     {list.id === UNSCHEDULED_ID ? t.unscheduled : list.name}
                   </button>
                 ))}
                 {lists.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-slate-500 italic">{t.noOtherLists}</div>
+                  <div className="px-4 py-3 text-sm text-text-muted italic">{t.noOtherLists}</div>
                 )}
               </div>
             </>
@@ -232,7 +232,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
             <button
               onClick={handleStart}
               disabled={!selectedListId || prayers.length === 0}
-              className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full p-1.5 text-text-tertiary hover:text-text-secondary hover:bg-card disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label={t.startTimer}
             >
               <Play size={16} />
@@ -240,7 +240,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           ) : (
             <button
               onClick={handlePause}
-              className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+              className="rounded-full p-1.5 text-text-tertiary hover:text-text-secondary hover:bg-card transition-colors"
               aria-label={t.pauseTimer}
             >
               <Pause size={16} />
@@ -248,7 +248,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           )}
           <button
             onClick={handleReset}
-            className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="rounded-full p-1.5 text-text-tertiary hover:text-text-secondary hover:bg-card transition-colors"
             aria-label={t.resetTimer}
           >
             <RotateCcw size={14} />

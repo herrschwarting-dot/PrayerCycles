@@ -119,15 +119,15 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-slate-800 p-6 pb-24 sm:rounded-2xl sm:pb-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay sm:items-center">
+      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-card p-6 pb-24 sm:rounded-2xl sm:pb-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-100">
+          <h2 className="text-lg font-semibold text-text">
             {mode === 'create-list' ? t.newPrayerList : t.newPrayer}
           </h2>
           <button
             onClick={handleClose}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
+            className="rounded-full p-1 text-text-tertiary hover:bg-input"
             aria-label={t.close}
           >
             <X size={20} />
@@ -139,14 +139,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           <button
             type="button"
             onClick={() => setMode('create-list')}
-            className={`rounded px-3 py-1 text-sm ${mode === 'create-list' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+            className={`rounded px-3 py-1 text-sm ${mode === 'create-list' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
           >
             {t.newPrayerList}
           </button>
           <button
             type="button"
             onClick={() => setMode('add-single')}
-            className={`rounded px-3 py-1 text-sm ${mode === 'add-single' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+            className={`rounded px-3 py-1 text-sm ${mode === 'add-single' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
           >
             {t.newPrayer}
           </button>
@@ -160,7 +160,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               placeholder={t.listName}
               value={listName}
               onChange={(e) => setListName(e.target.value)}
-              className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500"
+              className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted"
               autoFocus
             />
 
@@ -171,19 +171,19 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
                 rows={2}
                 maxLength={500}
-                className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
+                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
               />
-              <div className="text-right text-xs text-slate-500 mt-1">{listDescription.length}/500</div>
+              <div className="text-right text-xs text-text-muted mt-1">{listDescription.length}/500</div>
             </div>
 
             {/* Tags */}
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.tags}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
               <TagInput tags={listTags} onChange={setListTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.cycle}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.cycle}</div>
               <div className="flex flex-wrap gap-2">
                 {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                   <button
@@ -197,7 +197,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                         if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
                       }
                     }}
-                    className={`rounded px-3 py-1 text-sm capitalize ${cadence === c ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+                    className={`rounded px-3 py-1 text-sm capitalize ${cadence === c ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                   >
                     {c}
                   </button>
@@ -206,7 +206,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.frequency}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.frequency}</div>
               <div className="flex flex-wrap gap-2">
                 {visibleUnits.map(([unit, label, tooltip]) => (
                   <button
@@ -214,16 +214,16 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     type="button"
                     title={tooltip}
                     onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                    className={`rounded px-3 py-1 text-sm ${persistenceUnit === unit ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+                    className={`rounded px-3 py-1 text-sm ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
               <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-slate-400">{t.every}</span>
+                <span className="text-sm text-text-tertiary">{t.every}</span>
                 {cadence === 'daily' ? (
-                  <span className="w-16 text-sm text-slate-100 text-center">1</span>
+                  <span className="w-16 text-sm text-text text-center">1</span>
                 ) : (
                   <input
                     type="number"
@@ -231,10 +231,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     max={99}
                     value={persistenceEvery}
                     onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
-                    className="w-16 rounded bg-slate-700 px-2 py-1 text-sm text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500"
+                    className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
                   />
                 )}
-                <span className="text-sm text-slate-400">
+                <span className="text-sm text-text-tertiary">
                   {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
                     : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
                     : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
@@ -244,23 +244,23 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.lifecycle}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.lifecycle}</div>
               <div className="flex gap-2">
                 {(['indefinite', 'finite'] as const).map((l) => (
                   <button
                     key={l}
                     type="button"
                     onClick={() => setLifecycleType(l)}
-                    className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
+                    className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                   >
                     {l === 'indefinite' ? t.indefinite : t.finite}
                   </button>
                 ))}
               </div>
               <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-slate-400">{t.retiresAfter}</span>
+                <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
                 {lifecycleType === 'indefinite' ? (
-                  <span className="w-16 text-sm text-slate-100 text-center">∞</span>
+                  <span className="w-16 text-sm text-text text-center">∞</span>
                 ) : (
                   <input
                     type="number"
@@ -268,28 +268,28 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     max={999}
                     value={retireAfter}
                     onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                    className="w-16 rounded bg-slate-700 px-2 py-1 text-sm text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500"
+                    className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
                   />
                 )}
-                <span className="text-sm text-slate-400">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
+                <span className="text-sm text-text-tertiary">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
               </div>
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.prayersOnePerLine}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.prayersOnePerLine}</div>
               <textarea
                 placeholder={t.prayersPlaceholder}
                 value={initialPrayers}
                 onChange={(e) => setInitialPrayers(e.target.value)}
                 rows={5}
-                className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
+                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={!listName.trim()}
-              className="w-full rounded-lg bg-slate-600 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t.createList}
             </button>
@@ -304,7 +304,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               placeholder={t.prayerTitle}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500"
+              className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted"
               autoFocus
             />
             <textarea
@@ -313,23 +313,23 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
               maxLength={2000}
               rows={3}
-              className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500 resize-none"
+              className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
             />
-            <div className="text-right text-xs text-slate-500 -mt-3">{description.length}/2000</div>
+            <div className="text-right text-xs text-text-muted -mt-3">{description.length}/2000</div>
 
             {/* Tags */}
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.tags}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
               <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
             </div>
 
             {/* List dropdown */}
             <div>
-              <div className="mb-2 text-sm text-slate-400">{t.addToList}</div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.addToList}</div>
               <select
                 value={selectedListId}
                 onChange={(e) => setSelectedListId(e.target.value)}
-                className="w-full rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-slate-500 appearance-none cursor-pointer"
+                className="w-full rounded-lg bg-input px-3 py-2 text-sm text-text outline-none focus:ring-2 focus:ring-text-muted appearance-none cursor-pointer"
               >
                 <option value="">{t.unscheduled}</option>
                 {selectableLists.map((list) => (
@@ -343,7 +343,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             <button
               type="submit"
               disabled={!title.trim()}
-              className="w-full rounded-lg bg-slate-600 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t.addPrayer}
             </button>

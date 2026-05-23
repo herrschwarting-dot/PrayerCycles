@@ -186,4 +186,12 @@ export const mn: Translations = {
   filterByTags: 'Шошгоор шүүх',
   seeMore: 'цааш үзэх',
   seeLess: 'хураах',
+
+  themeSlate: 'Default',
+  themeNuudelchin: 'Нүүдэлчин (Nomad)',
+  themeAltan: 'Алтан (Алт)',
+  themeTal: 'Тал (Тал нутаг)',
+  themeTug: 'Туг (Далбаа)',
+  themeKhentii: 'Хэнтий (Хэнтий аймаг)',
+  themeGroupMongolian: 'Монгол',
 }

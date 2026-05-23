@@ -15,10 +15,10 @@ export function TodayPage() {
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
       {loading ? (
-        <div className="flex h-40 items-center justify-center text-slate-500">Loading...</div>
+        <div className="flex h-40 items-center justify-center text-text-muted">Loading...</div>
       ) : prayers.length === 0 ? (
         <div className="flex flex-col items-center justify-center pt-20 text-center">
-          <p className="text-slate-400">No prayers for today.</p>
+          <p className="text-text-tertiary">No prayers for today.</p>
         </div>
       ) : (
         <div className="mx-auto columns-2 gap-3 sm:columns-2 md:columns-3 max-w-2xl space-y-3">
@@ -35,7 +35,7 @@ export function TodayPage() {
       {canUndo && (
         <button
           onClick={undo}
-          className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-slate-700 text-slate-300 shadow-lg hover:bg-slate-600"
+          className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-input text-text-secondary shadow-lg hover:bg-input-hover"
           aria-label="Undo last completion"
         >
           <Undo2 size={20} />

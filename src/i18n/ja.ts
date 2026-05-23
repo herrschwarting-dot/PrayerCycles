@@ -186,4 +186,12 @@ export const ja: Translations = {
   filterByTags: 'タグで絞り込み',
   seeMore: 'もっと見る',
   seeLess: '閉じる',
+
+  themeSlate: 'Default',
+  themeNuudelchin: 'Нүүдэлчин (遊牧民)',
+  themeAltan: 'Алтан (黄金)',
+  themeTal: 'Тал (草原)',
+  themeTug: 'Туг (国旗)',
+  themeKhentii: 'Хэнтий (ヘンティー)',
+  themeGroupMongolian: 'モンゴル',
 }

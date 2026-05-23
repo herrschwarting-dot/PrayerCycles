@@ -61,13 +61,13 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="w-full max-w-md rounded-t-2xl bg-slate-800 p-6 pb-24 sm:rounded-2xl sm:pb-6">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay sm:items-center">
+      <div className="w-full max-w-md rounded-t-2xl bg-card p-6 pb-24 sm:rounded-2xl sm:pb-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-100">{t.exportImportTitle}</h2>
+          <h2 className="text-lg font-semibold text-text">{t.exportImportTitle}</h2>
           <button
             onClick={handleClose}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
+            className="rounded-full p-1 text-text-tertiary hover:bg-input"
             aria-label={t.close}
           >
             <X size={20} />
@@ -75,20 +75,20 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
         </div>
 
         <div className="space-y-4">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-text-tertiary">
             {t.exportImportDesc}
           </p>
 
           <div className="flex gap-3">
             <button
               onClick={handleExport}
-              className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl bg-slate-600 aspect-square text-sm font-medium text-white transition-colors hover:bg-slate-500"
+              className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl bg-input-hover aspect-square text-sm font-medium text-text transition-colors hover:bg-input"
             >
               <Download size={28} />
               {t.exportBtn}
             </button>
 
-            <label className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-700 aspect-square text-sm font-medium text-slate-200 transition-colors hover:bg-slate-600">
+            <label className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-border-light bg-input aspect-square text-sm font-medium text-text-secondary transition-colors hover:bg-input-hover">
               <Upload size={28} />
               {t.importBtn}
               <input
@@ -105,8 +105,8 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
             <div
               className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
                 status === 'success'
-                  ? 'bg-emerald-900/40 text-emerald-300'
-                  : 'bg-red-900/40 text-red-300'
+                  ? 'bg-success-bg text-success-text'
+                  : 'bg-danger-bg text-danger-text'
               }`}
             >
               {status === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}

@@ -186,4 +186,12 @@ export const en: Translations = {
   filterByTags: 'Filter by tags',
   seeMore: 'see more',
   seeLess: 'see less',
+
+  themeSlate: 'Default',
+  themeNuudelchin: 'Нүүдэлчин (Nomad)',
+  themeAltan: 'Алтан (Golden)',
+  themeTal: 'Тал (Steppe)',
+  themeTug: 'Туг (Flag)',
+  themeKhentii: 'Хэнтий (Khentii)',
+  themeGroupMongolian: 'Mongolian',
 }

@@ -7,10 +7,12 @@ import { SideMenu } from './components/SideMenu'
 import { AddModal } from './components/AddModal'
 import { ExportImportModal } from './components/ExportImportModal'
 import { LanguageModal } from './components/LanguageModal'
+import { ThemeModal } from './components/ThemeModal'
 import { TimerProvider } from './context/TimerContext'
 import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
 import { purgeExpiredLists, ensureUnscheduledList } from './features/cycles/list-operations'
 import { I18nContext, translations, getSavedLocale, saveLocale, type Locale } from './i18n'
+import { getSavedTheme, applyTheme } from './lib/themes'
 import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
@@ -24,8 +26,10 @@ function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const [themeOpen, setThemeOpen] = useState(false)
 
   useEffect(() => {
+    applyTheme(getSavedTheme())
     checkAndRestoreFromLocalStorage().then((restored) => {
       if (restored) {
         window.dispatchEvent(new Event('prayercycles:refresh'))
@@ -37,13 +41,14 @@ function AppContent() {
 
   return (
       <TimerProvider>
-      <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
+      <div className="flex min-h-screen flex-col bg-base text-text">
         <TimerBar onMenuOpen={() => setMenuOpen(true)} />
         <SideMenu
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
           onExportImport={() => setExportOpen(true)}
           onLanguages={() => setLangOpen(true)}
+          onThemes={() => setThemeOpen(true)}
         />
         <Routes>
           <Route path="/" element={<TapPrayPage />} />
@@ -57,7 +62,7 @@ function AppContent() {
 
         <button
           onClick={() => setAddOpen(true)}
-          className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-slate-600 text-white shadow-lg hover:bg-slate-500"
+          className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
           aria-label="Add"
         >
           <Plus size={24} />
@@ -66,6 +71,7 @@ function AppContent() {
         <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
         <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
+        <ThemeModal open={themeOpen} onClose={() => setThemeOpen(false)} />
         <BottomNav />
       </div>
       </TimerProvider>
