@@ -12,6 +12,9 @@
     <title>Prayer Cycles</title>
   </head>
   <body>
+    <script>
+      (function(){var t=localStorage.getItem('prayercycles-theme');if(t&&t!=='slate')document.documentElement.setAttribute('data-theme',t)})()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
