@@ -141,6 +141,7 @@ export type Translations = {
   noPrayersInThisList: string
   timePerPrayer: string
   totalTimebox: string
+  autoAdjust: string
   upNext: string
   moreItems: (count: number) => string
   noPrayersInListYet: string

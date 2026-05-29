@@ -129,6 +129,7 @@ export const ja: Translations = {
   noPrayersInThisList: 'このリストに祈りがありません',
   timePerPrayer: '祈り1件の時間',
   totalTimebox: '合計時間',
+  autoAdjust: '自動調整',
   upNext: '次の祈り',
   moreItems: (count) => `他${count}件`,
   noPrayersInListYet: 'このリストにはまだ祈りがありません。',

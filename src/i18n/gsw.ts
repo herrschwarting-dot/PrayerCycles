@@ -129,6 +129,7 @@ export const gsw: Translations = {
   noPrayersInThisList: 'Kei Gebät i dere Lischte',
   timePerPrayer: 'Zit pro Gebet',
   totalTimebox: 'Gsamti Ziitbox',
+  autoAdjust: 'Auto Aapasse',
   upNext: 'Als nächsts',
   moreItems: (count) => `+${count} meh`,
   noPrayersInListYet: 'No kei Gebät i dere Lischte.',

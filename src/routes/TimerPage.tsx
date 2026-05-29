@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
 import { FormattedText } from '../components/FormattedText'
 import confetti from 'canvas-confetti'
@@ -6,15 +6,16 @@ import { useTimer, TODAY_ID } from '../context/TimerContext'
 import { useT } from '../i18n'
 import { isDevMode } from '../lib/devmode'
 
-function EditableTime({
-  seconds,
-  onChangeSeconds,
-  disabled,
-}: {
+type EditableTimeHandle = {
+  startEditMin: () => void
+}
+
+const EditableTime = forwardRef<EditableTimeHandle, {
   seconds: number
   onChangeSeconds: (s: number) => void
   disabled: boolean
-}) {
+  onTabForward?: () => void
+}>(function EditableTime({ seconds, onChangeSeconds, disabled, onTabForward }, ref) {
   const [editingPart, setEditingPart] = useState<'min' | 'sec' | null>(null)
   const [editMin, setEditMin] = useState('')
   const [editSec, setEditSec] = useState('')
@@ -23,6 +24,16 @@ function EditableTime({
 
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
+
+  useImperativeHandle(ref, () => ({
+    startEditMin() {
+      if (disabled) return
+      setEditMin('')
+      setEditSec(String(s))
+      setEditingPart('min')
+      setTimeout(() => minRef.current?.focus(), 0)
+    },
+  }))
 
   function startEdit(part: 'min' | 'sec') {
     if (disabled) return
@@ -38,9 +49,11 @@ function EditableTime({
   }
 
   function commitEdit() {
-    const mins = Math.max(0, Math.min(999, parseInt(editMin) || 0))
-    const secs = Math.max(0, Math.min(59, parseInt(editSec) || 0))
-    onChangeSeconds(mins * 60 + secs)
+    // If fields are empty, keep the original values (user clicked in and out without typing)
+    const mins = editMin === '' ? m : Math.max(0, Math.min(999, parseInt(editMin) || 0))
+    const secs = editSec === '' ? s : Math.max(0, Math.min(59, parseInt(editSec) || 0))
+    const newVal = mins * 60 + secs
+    if (newVal !== seconds) onChangeSeconds(newVal)
     setEditingPart(null)
   }
 
@@ -49,11 +62,17 @@ function EditableTime({
     if (e.key === 'Escape') setEditingPart(null)
     if (e.key === 'Tab' && editingPart === 'min') {
       e.preventDefault()
-      // Save current min value, switch to editing seconds
       setEditMin(editMin || String(m))
       setEditingPart('sec')
       setEditSec('')
       setTimeout(() => secRef.current?.focus(), 0)
+    }
+    if (e.key === 'Tab' && editingPart === 'sec') {
+      if (onTabForward) {
+        e.preventDefault()
+        commitEdit()
+        onTabForward()
+      }
     }
   }
 
@@ -104,7 +123,7 @@ function EditableTime({
       )}
     </div>
   )
-}
+})
 
 export function TimerPage() {
   const { t } = useT()
@@ -133,6 +152,7 @@ export function TimerPage() {
   } = useTimer()
 
   const timeboxRef = useRef<HTMLDivElement>(null)
+  const totalTimeRef = useRef<EditableTimeHandle>(null)
   const prevTimeLeftRef = useRef(timeLeft)
   const wasRunningRef = useRef(false)
 
@@ -294,12 +314,22 @@ export function TimerPage() {
 
               {/* Auto-toggle — top right corner */}
               <button
-                onClick={() => { if (!running) setTimerMode(timerMode === 'until-done' ? 'custom' : 'until-done') }}
+                onClick={() => {
+                  if (!running) {
+                    if (timerMode === 'until-done') {
+                      // Switching to custom — sync customMinutes to current total so nothing flashes
+                      setCustomMinutes(Math.max(1, Math.ceil(totalTime / 60)))
+                      setTimerMode('custom')
+                    } else {
+                      setTimerMode('until-done')
+                    }
+                  }
+                }}
                 disabled={running}
                 className={`absolute top-3 right-3 flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
                 title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
               >
-                <span className="text-[9px] text-text-muted whitespace-nowrap">{t.totalTimebox}</span>
+                <span className="text-[9px] text-text-muted whitespace-nowrap">{t.autoAdjust}</span>
                 <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input'}`}>
                   <div className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[13px]' : 'translate-x-[2px]'}`} />
                 </div>
@@ -313,16 +343,17 @@ export function TimerPage() {
                     seconds={bigTimerValue}
                     onChangeSeconds={setPrayerIncrement}
                     disabled={running}
+                    onTabForward={() => totalTimeRef.current?.startEditMin()}
                   />
                 </div>
                 <span className="text-2xl font-light text-border-light pb-[1px]">/</span>
                 <div className="text-center" title="Total timebox — click to edit">
                   <div className="text-[10px] text-text-muted mb-1">{t.totalTimebox}</div>
                   <EditableTime
+                    ref={totalTimeRef}
                     seconds={totalTimerValue}
                     onChangeSeconds={(s) => {
                       if (!running) {
-                        setTimerMode('custom')
                         setCustomMinutes(Math.max(1, Math.ceil(s / 60)))
                         setTimeLeft(s)
                         // Auto-adjust time per prayer to fit evenly

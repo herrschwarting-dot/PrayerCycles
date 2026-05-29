@@ -1,18 +1,19 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import { Menu, ChevronDown, Play, Pause, RotateCcw } from 'lucide-react'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
 import { UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { useT } from '../i18n'
 
-function BarTimer({
-  seconds,
-  onChangeSeconds,
-  disabled,
-}: {
+type BarTimerHandle = {
+  startEditMin: () => void
+}
+
+const BarTimer = forwardRef<BarTimerHandle, {
   seconds: number
   onChangeSeconds: (s: number) => void
   disabled: boolean
-}) {
+  onTabForward?: () => void
+}>(function BarTimer({ seconds, onChangeSeconds, disabled, onTabForward }, ref) {
   const [editingPart, setEditingPart] = useState<'min' | 'sec' | null>(null)
   const [editMin, setEditMin] = useState('')
   const [editSec, setEditSec] = useState('')
@@ -21,6 +22,16 @@ function BarTimer({
 
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
+
+  useImperativeHandle(ref, () => ({
+    startEditMin() {
+      if (disabled) return
+      setEditMin('')
+      setEditSec(String(s))
+      setEditingPart('min')
+      setTimeout(() => minRef.current?.focus(), 0)
+    },
+  }))
 
   function startEdit(part: 'min' | 'sec') {
     if (disabled) return
@@ -36,15 +47,30 @@ function BarTimer({
   }
 
   function commitEdit() {
-    const mins = Math.max(0, Math.min(999, parseInt(editMin) || 0))
-    const secs = Math.max(0, Math.min(59, parseInt(editSec) || 0))
-    onChangeSeconds(mins * 60 + secs)
+    const mins = editMin === '' ? m : Math.max(0, Math.min(999, parseInt(editMin) || 0))
+    const secs = editSec === '' ? s : Math.max(0, Math.min(59, parseInt(editSec) || 0))
+    const newVal = mins * 60 + secs
+    if (newVal !== seconds) onChangeSeconds(newVal)
     setEditingPart(null)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') commitEdit()
     if (e.key === 'Escape') setEditingPart(null)
+    if (e.key === 'Tab' && editingPart === 'min') {
+      e.preventDefault()
+      setEditMin(editMin || String(m))
+      setEditingPart('sec')
+      setEditSec('')
+      setTimeout(() => secRef.current?.focus(), 0)
+    }
+    if (e.key === 'Tab' && editingPart === 'sec') {
+      if (onTabForward) {
+        e.preventDefault()
+        commitEdit()
+        onTabForward()
+      }
+    }
   }
 
   const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
@@ -82,7 +108,7 @@ function BarTimer({
       )}
     </div>
   )
-}
+})
 
 type TimerBarProps = {
   onMenuOpen: () => void
@@ -90,6 +116,7 @@ type TimerBarProps = {
 
 export function TimerBar({ onMenuOpen }: TimerBarProps) {
   const { t } = useT()
+  const totalBarTimerRef = useRef<BarTimerHandle>(null)
   const {
     lists,
     selectedListId,
@@ -163,15 +190,19 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                 seconds={bigTimerValue}
                 onChangeSeconds={setPrayerIncrement}
                 disabled={running}
+                onTabForward={() => totalBarTimerRef.current?.startEditMin()}
               />
               <span className="text-xs text-input-hover">/</span>
               <BarTimer
+                ref={totalBarTimerRef}
                 seconds={totalTimerValue}
                 onChangeSeconds={(s) => {
                   if (!running) {
-                    setTimerMode('custom')
                     setCustomMinutes(Math.max(1, Math.ceil(s / 60)))
                     setTimeLeft(s)
+                    if (prayers.length > 0) {
+                      setPrayerIncrement(Math.max(1, Math.floor(s / prayers.length)))
+                    }
                   }
                 }}
                 disabled={running}
@@ -180,7 +211,16 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
 
             {/* Auto-toggle */}
             <button
-              onClick={() => { if (!running) setTimerMode(timerMode === 'until-done' ? 'custom' : 'until-done') }}
+              onClick={() => {
+                if (!running) {
+                  if (timerMode === 'until-done') {
+                    setCustomMinutes(Math.max(1, Math.ceil(totalTime / 60)))
+                    setTimerMode('custom')
+                  } else {
+                    setTimerMode('until-done')
+                  }
+                }
+              }}
               disabled={running}
               className={`flex items-center ${running ? 'opacity-50' : ''}`}
               title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
