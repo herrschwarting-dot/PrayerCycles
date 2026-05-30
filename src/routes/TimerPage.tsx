@@ -242,8 +242,8 @@ export function TimerPage() {
   // Big timer: shows per-prayer countdown when running or paused mid-session
   const midSession = timeLeft > 0 && timeLeft < totalTime
   const bigTimerValue = (running || midSession) ? incrementTimeLeft : prayerIncrement
-  // Total timer: shows total timebox countdown
-  const totalTimerValue = timeLeft
+  // Total timer: shows total timebox countdown (subtract 1 when running to count through current second)
+  const totalTimerValue = running ? Math.max(0, timeLeft - 1) : timeLeft
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">

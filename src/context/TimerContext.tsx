@@ -109,9 +109,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const currentIndex = prayerIncrement > 0
     ? Math.min(Math.floor(elapsed / prayerIncrement), Math.max(0, prayers.length - 1))
     : 0
-  const incrementTimeLeft = prayerIncrement > 0
+  // When running, subtract 1 so the display counts through the current second
+  // (e.g. 10s timer shows 9..8..7..0 instead of 10..9..8..1)
+  const rawIncrementLeft = prayerIncrement > 0
     ? prayerIncrement - (elapsed % prayerIncrement)
     : 0
+  const incrementTimeLeft = running ? Math.max(0, rawIncrementLeft - 1) : rawIncrementLeft
 
   const prevTotalTimeRef = useRef(totalTime)
   useEffect(() => {

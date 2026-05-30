@@ -147,7 +147,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
 
   const midSession = timeLeft > 0 && timeLeft < totalTime
   const bigTimerValue = (running || midSession) ? incrementTimeLeft : prayerIncrement
-  const totalTimerValue = timeLeft
+  const totalTimerValue = running ? Math.max(0, timeLeft - 1) : timeLeft
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
   const showPrayerTitle = running || midSession
 
