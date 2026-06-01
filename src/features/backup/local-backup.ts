@@ -1,14 +1,10 @@
 import { db } from '../../db/db'
+import { encryptBlob, decryptBlob, hasCryptoKey, isEncrypted } from '../../lib/crypto'
 
 const STORAGE_KEY = 'prayercycles_backup'
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
-/**
- * Debounced snapshot of all Dexie tables to localStorage.
- * Called after every write operation as a safety net against
- * iOS Safari clearing IndexedDB on storage pressure.
- */
 export function snapshotToLocalStorage(): void {
   if (debounceTimer) clearTimeout(debounceTimer)
   debounceTimer = setTimeout(async () => {
@@ -25,27 +21,27 @@ export function snapshotToLocalStorage(): void {
         prayers,
         prayerLogs,
       })
-      localStorage.setItem(STORAGE_KEY, snapshot)
+      const stored = hasCryptoKey() ? encryptBlob(snapshot) : snapshot
+      localStorage.setItem(STORAGE_KEY, stored)
     } catch {
       // Silently fail — localStorage might be full or unavailable
     }
   }, 1000)
 }
 
-/**
- * On startup, if IndexedDB is empty but localStorage has data,
- * silently restore from the backup.
- */
 export async function checkAndRestoreFromLocalStorage(): Promise<boolean> {
   try {
     const listCount = await db.prayerLists.count()
     const prayerCount = await db.prayers.count()
 
-    // Only restore if DB is completely empty
     if (listCount > 0 || prayerCount > 0) return false
 
-    const raw = localStorage.getItem(STORAGE_KEY)
+    let raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return false
+
+    if (hasCryptoKey() && isEncrypted(raw)) {
+      raw = decryptBlob(raw)
+    }
 
     const data = JSON.parse(raw)
     if (!data.prayerLists?.length && !data.prayers?.length) return false

@@ -14,6 +14,9 @@ import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
 import { purgeExpiredLists, ensureUnscheduledList } from './features/cycles/list-operations'
 import { I18nContext, translations, getSavedLocale, saveLocale, type Locale } from './i18n'
 import { getSavedTheme, applyTheme } from './lib/themes'
+import { initEncryption } from './lib/key-manager'
+import { migrateUnencryptedData } from './db/encryption-hooks'
+import { db } from './db/db'
 import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
@@ -29,17 +32,30 @@ function AppContent() {
   const [langOpen, setLangOpen] = useState(false)
   const [themeOpen, setThemeOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     applyTheme(getSavedTheme())
-    checkAndRestoreFromLocalStorage().then((restored) => {
-      if (restored) {
-        window.dispatchEvent(new Event('prayercycles:refresh'))
-      }
-    })
-    purgeExpiredLists()
-    ensureUnscheduledList()
+    initEncryption()
+      .then(() => migrateUnencryptedData(db))
+      .then(() => checkAndRestoreFromLocalStorage())
+      .then(async (restored) => {
+        if (restored) {
+          window.dispatchEvent(new Event('prayercycles:refresh'))
+        }
+        await purgeExpiredLists()
+        await ensureUnscheduledList()
+        setReady(true)
+      })
+      .catch((err) => {
+        console.error('Encryption init failed:', err)
+        setReady(true)
+      })
   }, [])
+
+  if (!ready) {
+    return <div className="flex min-h-screen items-center justify-center bg-base text-text" />
+  }
 
   return (
       <TimerProvider>

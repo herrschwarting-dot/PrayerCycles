@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Prayer, PrayerList, PrayerLog } from './types'
+import { encryptionMiddleware } from './encryption-middleware'
 
 const db = new Dexie('PrayerCyclesDB') as Dexie & {
   prayerLists: EntityTable<PrayerList, 'id'>
@@ -58,5 +59,7 @@ db.version(5).stores({
     if (prayer.fulfilled === undefined) prayer.fulfilled = false
   })
 })
+
+db.use(encryptionMiddleware)
 
 export { db }

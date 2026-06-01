@@ -1,20 +1,23 @@
 import { db } from '../../db/db'
 import { snapshotToLocalStorage } from '../backup/local-backup'
+import { encryptBlob, decryptBlob, hasCryptoKey, isEncrypted } from '../../lib/crypto'
 
 const TAG_REGISTRY_KEY = 'prayercycles_tag_registry'
 
-/** Get standalone tags stored in localStorage (created on Tags page before assignment) */
 function getRegistryTags(): string[] {
   try {
-    const raw = localStorage.getItem(TAG_REGISTRY_KEY)
-    return raw ? JSON.parse(raw) : []
+    let raw = localStorage.getItem(TAG_REGISTRY_KEY)
+    if (!raw) return []
+    if (hasCryptoKey() && isEncrypted(raw)) raw = decryptBlob(raw)
+    return JSON.parse(raw)
   } catch {
     return []
   }
 }
 
 function saveRegistryTags(tags: string[]): void {
-  localStorage.setItem(TAG_REGISTRY_KEY, JSON.stringify(tags))
+  const json = JSON.stringify(tags)
+  localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? encryptBlob(json) : json)
 }
 
 /** Create a standalone tag (stored in registry until assigned to a list/prayer) */
@@ -64,7 +67,6 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
     for (const list of lists) {
       if ((list.tags ?? []).includes(oldName)) {
         const updated = (list.tags ?? []).map((t) => (t === oldName ? trimmed : t))
-        // deduplicate
         await db.prayerLists.update(list.id, { tags: [...new Set(updated)] })
       }
     }
@@ -82,7 +84,6 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
 
 /** Remove a tag from every list, prayer, and registry */
 export async function deleteTag(tagName: string): Promise<void> {
-  // Remove from registry
   const registry = getRegistryTags()
   saveRegistryTags(registry.filter((t) => t !== tagName))
 

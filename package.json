@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@aparajita/capacitor-secure-storage": "^8.0.0",
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
     "@capacitor/ios": "^8.3.4",
@@ -26,6 +27,7 @@
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.75.0",
     "react-router-dom": "^7.15.0",
+    "tweetnacl": "^1.0.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
