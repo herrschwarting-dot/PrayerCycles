@@ -99,7 +99,7 @@
    endless grassland under soft light
    ═══════════════════════════════════════ */
 [data-theme="tal"] {
-  --t-base: #0c1410;
+  --t-base: #6ea860;
   --t-card: #162118;
   --t-input: #233428;
   --t-input-hover: #314636;
@@ -109,7 +109,7 @@
   --t-text: #e8efe6;
   --t-text-secondary: #b8c9b2;
   --t-text-tertiary: #839c7a;
-  --t-text-muted: #5a7252;
+  --t-text-muted: #d0e8c8;
   --t-accent: #6aad5a;
   --t-accent-text: #92ce84;
   --t-accent-hover: #bce4b2;
@@ -133,31 +133,31 @@
    valleys, deep greens & cool river blue
    ═══════════════════════════════════════ */
 [data-theme="khentii"] {
-  --t-base: #0b1214;
-  --t-card: #13202a;
-  --t-input: #1c3040;
-  --t-input-hover: #264052;
-  --t-overlay: rgba(4,8,10,0.55);
-  --t-border: #1c3040;
-  --t-border-light: #264052;
-  --t-text: #e6f0ef;
-  --t-text-secondary: #aac8c4;
-  --t-text-tertiary: #729892;
-  --t-text-muted: #4e6e68;
-  --t-accent: #3a9e8a;
-  --t-accent-text: #5cceb8;
-  --t-accent-hover: #90e8d6;
-  --t-accent-glow: rgba(58,158,138,0.30);
-  --t-danger: #b04038;
-  --t-danger-hover: #cc5048;
-  --t-danger-text: #e08070;
-  --t-danger-bg: rgba(100,28,22,0.35);
+  --t-base: #4a90c4;
+  --t-card: #1a4a80;
+  --t-input: #2a5a90;
+  --t-input-hover: #366aa0;
+  --t-overlay: rgba(4,8,14,0.50);
+  --t-border: #143a68;
+  --t-border-light: #3a6a9c;
+  --t-text: #ffffff;
+  --t-text-secondary: #e8f0f8;
+  --t-text-tertiary: #c0d4e8;
+  --t-text-muted: #d8e8f4;
+  --t-accent: #e8c020;
+  --t-accent-text: #f0d040;
+  --t-accent-hover: #f8e068;
+  --t-accent-glow: rgba(232,192,32,0.30);
+  --t-danger: #e04040;
+  --t-danger-hover: #f06060;
+  --t-danger-text: #f08080;
+  --t-danger-bg: rgba(180,30,30,0.30);
   --t-success-text: #88d0a8;
   --t-success-alt: #58b880;
   --t-success-border: rgba(88,184,128,0.75);
   --t-success-glow: rgba(88,184,128,0.30);
   --t-success-bg: rgba(18,56,36,0.35);
-  --t-toggle: #58b880;
+  --t-toggle: #e8c020;
 }
 
 /* ═══════════════════════════════════════
@@ -257,6 +257,204 @@
   --t-success-glow: rgba(78,184,124,0.20);
   --t-success-bg: rgba(16,56,34,0.20);
   --t-toggle: #4eb87c;
+}
+
+/* ═══════════════════════════════════════
+   桜 (Sakura) — Cherry Blossom
+   Soft petal pinks, spring whites,
+   delicate rose accent
+   ═══════════════════════════════════════ */
+[data-theme="sakura"] {
+  --t-base: #fdf2f4;
+  --t-card: #f8d7dc;
+  --t-input: #f0c4cc;
+  --t-input-hover: #e8b0ba;
+  --t-overlay: rgba(0,0,0,0.25);
+  --t-border: #c88a96;
+  --t-border-light: #d4a0aa;
+  --t-text: #2a1418;
+  --t-text-secondary: #4a2830;
+  --t-text-tertiary: #6e4450;
+  --t-text-muted: #946070;
+  --t-accent: #c03860;
+  --t-accent-text: #a02e50;
+  --t-accent-hover: #801840;
+  --t-accent-glow: rgba(192,56,96,0.20);
+  --t-danger: #b82828;
+  --t-danger-hover: #9c2020;
+  --t-danger-text: #8c1818;
+  --t-danger-bg: rgba(184,40,40,0.12);
+  --t-success-text: #2a7a44;
+  --t-success-alt: #328850;
+  --t-success-border: rgba(50,136,80,0.50);
+  --t-success-glow: rgba(50,136,80,0.15);
+  --t-success-bg: rgba(50,136,80,0.10);
+  --t-toggle: #c03860;
+}
+
+/* ═══════════════════════════════════════
+   京都 (Kyoto) — Ancient Capital
+   Dark temple wood, vermillion torii,
+   gold leaf accent, deep ceremony
+   ═══════════════════════════════════════ */
+[data-theme="kyoto"] {
+  --t-base: #1a1008;
+  --t-card: #2c1e10;
+  --t-input: #3e2c18;
+  --t-input-hover: #503a22;
+  --t-overlay: rgba(8,4,2,0.55);
+  --t-border: #3e2c18;
+  --t-border-light: #584020;
+  --t-text: #f4ede4;
+  --t-text-secondary: #d4c8b4;
+  --t-text-tertiary: #a89878;
+  --t-text-muted: #806850;
+  --t-accent: #c83028;
+  --t-accent-text: #e04838;
+  --t-accent-hover: #f08070;
+  --t-accent-glow: rgba(200,48,40,0.30);
+  --t-danger: #cc3030;
+  --t-danger-hover: #e04040;
+  --t-danger-text: #f07070;
+  --t-danger-bg: rgba(140,24,24,0.35);
+  --t-success-text: #a0c878;
+  --t-success-alt: #80b058;
+  --t-success-border: rgba(128,176,88,0.70);
+  --t-success-glow: rgba(128,176,88,0.25);
+  --t-success-bg: rgba(40,60,20,0.30);
+  --t-toggle: #d4a020;
+}
+
+/* ═══════════════════════════════════════
+   竹林 (Chikurin) — Bamboo Grove
+   Deep forest floor, bamboo-green stalks,
+   filtered golden light through canopy
+   ═══════════════════════════════════════ */
+[data-theme="chikurin"] {
+  --t-base: #0c1a0e;
+  --t-card: #1a2e18;
+  --t-input: #253a22;
+  --t-input-hover: #324830;
+  --t-overlay: rgba(4,8,4,0.55);
+  --t-border: #2a3c24;
+  --t-border-light: #3e5238;
+  --t-text: #e8f0e4;
+  --t-text-secondary: #c0d0b8;
+  --t-text-tertiary: #88a07c;
+  --t-text-muted: #607856;
+  --t-accent: #c8b040;
+  --t-accent-text: #dcc860;
+  --t-accent-hover: #f0e088;
+  --t-accent-glow: rgba(200,176,64,0.25);
+  --t-danger: #cc3030;
+  --t-danger-hover: #e04040;
+  --t-danger-text: #f07070;
+  --t-danger-bg: rgba(140,24,24,0.35);
+  --t-success-text: #88cc88;
+  --t-success-alt: #60b860;
+  --t-success-border: rgba(96,184,96,0.70);
+  --t-success-glow: rgba(96,184,96,0.25);
+  --t-success-bg: rgba(20,60,20,0.30);
+  --t-toggle: #60b860;
+}
+
+/* ═══════════════════════════════════════
+   New Smyrna Beach — Florida Atlantic
+   Warm sand, turquoise water, bright
+   sunny day on the coast
+   ═══════════════════════════════════════ */
+[data-theme="newsmyrna"] {
+  --t-base: #c0dce8;
+  --t-card: #fdf4c0;
+  --t-input: #e8e0c8;
+  --t-input-hover: #dcd4b8;
+  --t-overlay: rgba(0,0,0,0.25);
+  --t-border: #b0a480;
+  --t-border-light: #c4b898;
+  --t-text: #1a1c14;
+  --t-text-secondary: #3a3c30;
+  --t-text-tertiary: #5c5e4e;
+  --t-text-muted: #7e8070;
+  --t-accent: #1898a0;
+  --t-accent-text: #107880;
+  --t-accent-hover: #085860;
+  --t-accent-glow: rgba(24,152,160,0.20);
+  --t-danger: #c03030;
+  --t-danger-hover: #a02424;
+  --t-danger-text: #901c1c;
+  --t-danger-bg: rgba(192,48,48,0.12);
+  --t-success-text: #2a7a44;
+  --t-success-alt: #328850;
+  --t-success-border: rgba(50,136,80,0.50);
+  --t-success-glow: rgba(50,136,80,0.15);
+  --t-success-bg: rgba(50,136,80,0.10);
+  --t-toggle: #1898a0;
+}
+
+/* ═══════════════════════════════════════
+   Wisconsin Birch — White birch forest
+   Dark bark base, forest green depth,
+   papery white birch bark cards
+   ═══════════════════════════════════════ */
+[data-theme="birch"] {
+  --t-base: #2e6a57;
+  --t-card: #f4f2eb;
+  --t-input: #c4d8c8;
+  --t-input-hover: #b0c8b4;
+  --t-overlay: rgba(0,0,0,0.45);
+  --t-border: #2a2a25;
+  --t-border-light: #3a3a34;
+  --t-text: #1e1e1a;
+  --t-text-secondary: #3a3830;
+  --t-text-tertiary: #4a4840;
+  --t-text-muted: #6a8a78;
+  --t-accent: #c8b860;
+  --t-accent-text: #6a6020;
+  --t-accent-hover: #f0e8a0;
+  --t-accent-glow: rgba(200,184,96,0.25);
+  --t-danger: #cc3838;
+  --t-danger-hover: #e04848;
+  --t-danger-text: #f08080;
+  --t-danger-bg: rgba(140,30,30,0.30);
+  --t-success-text: #88cc98;
+  --t-success-alt: #60b870;
+  --t-success-border: rgba(96,184,112,0.60);
+  --t-success-glow: rgba(96,184,112,0.20);
+  --t-success-bg: rgba(20,56,30,0.25);
+  --t-toggle: #60b870;
+}
+
+/* ═══════════════════════════════════════
+   The Boulder Field — Boulder field at sunrise
+   Warm clay-brown rock, orange dawn
+   light on granite, alpine glow
+   ═══════════════════════════════════════ */
+[data-theme="boulderfield"] {
+  --t-base: #c8843c;
+  --t-card: #584838;
+  --t-input: #4a3c30;
+  --t-input-hover: #5e4e40;
+  --t-overlay: rgba(10,6,4,0.50);
+  --t-border: #2e2420;
+  --t-border-light: #6a5848;
+  --t-text: #f4ece4;
+  --t-text-secondary: #d8ccc0;
+  --t-text-tertiary: #b0a090;
+  --t-text-muted: #887868;
+  --t-accent: #d89030;
+  --t-accent-text: #e8a848;
+  --t-accent-hover: #f4c870;
+  --t-accent-glow: rgba(216,144,48,0.28);
+  --t-danger: #cc3838;
+  --t-danger-hover: #e04848;
+  --t-danger-text: #f08080;
+  --t-danger-bg: rgba(140,30,30,0.30);
+  --t-success-text: #98c880;
+  --t-success-alt: #70b058;
+  --t-success-border: rgba(112,176,88,0.60);
+  --t-success-glow: rgba(112,176,88,0.20);
+  --t-success-bg: rgba(34,56,20,0.25);
+  --t-toggle: #70b058;
 }
 
 html {
